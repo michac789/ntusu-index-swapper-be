@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_yasg',
 
     'indexswapper',
     'sso',
@@ -132,3 +133,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Additional settings
 
 AUTH_USER_MODEL = 'sso.User'
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "Auth Token eg [Bearer {JWT}]": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
