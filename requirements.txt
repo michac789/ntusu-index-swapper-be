@@ -7,3 +7,7 @@ tzdata==2023.3
 # Django REST Framework 3.14.0
 djangorestframework==3.14.0
 pytz==2023.3
+
+# DRF JWT 5.2.2
+djangorestframework-simplejwt==5.2.2
+PyJWT==2.6.0
