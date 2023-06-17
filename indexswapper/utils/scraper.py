@@ -1,9 +1,12 @@
 from bs4 import BeautifulSoup
+from django.db.utils import IntegrityError
 from urllib import request
 import re
 from indexswapper.models import CourseIndex
 
 
+# latest link: AY 2023-2024 Semester 1
+# https://wish.wis.ntu.edu.sg/webexe/owa/AUS_SCHEDULE.main_display1?acadsem=2023;1&staff_access=true&r_search_type=F&boption=Search&r_subj_code=
 def get_url(acadyear, acadsem):
     return f"https://wish.wis.ntu.edu.sg/webexe/owa/AUS_SCHEDULE.main_display1?acadsem={acadyear};{acadsem}&staff_access=true&r_search_type=F&boption=Search&r_subj_code="
 
@@ -14,9 +17,10 @@ def get_url(acadyear, acadsem):
 '''
 
 
-async def populate_modules(max_indexes=99999, url='some_url'):
+def populate_modules(max_indexes=99999, url='some_url'):
 
     index_counter = 0
+    duplicate_count = 0
 
     with request.urlopen(url) as fp:
         # Parsing the html from the URL into a nested data structure
@@ -33,7 +37,11 @@ async def populate_modules(max_indexes=99999, url='some_url'):
             name = re.findall(".*(?<![*~#^])", header_content[1].get_text())[0]
 
             raw_au = re.findall(".(?=\.0 AU)", header_content[2].get_text())[0]
-            academic_units = int(raw_au) if raw_au else 0
+            academic_units = 0
+            try:  # .0 AU -> E1102L (buggy there)
+                academic_units = int(raw_au) if raw_au else 0
+            except:
+                pass
 
             # raw data containing the index table without the header
             index_content = body.find_all('tr')[1:]
@@ -55,13 +63,16 @@ async def populate_modules(max_indexes=99999, url='some_url'):
                             information += ';' if i < (
                                 len(index_information)-1) else ''
 
-                        CourseIndex.objects.create(
-                            code=code,
-                            name=name,
-                            academic_units=academic_units,
-                            index=index,
-                            information=information
-                        )
+                        try:
+                            CourseIndex.objects.create(
+                                code=code,
+                                name=name,
+                                academic_units=academic_units,
+                                index=index,
+                                information=information
+                            )
+                        except IntegrityError:
+                            duplicate_count += 1
 
                         index_counter += 1
                         if index_counter >= max_indexes:
@@ -88,15 +99,20 @@ async def populate_modules(max_indexes=99999, url='some_url'):
                         information += ';' if i < (
                             len(index_information)-1) else ''
 
-                    CourseIndex.objects.create(
-                        code=code,
-                        name=name,
-                        academic_units=academic_units,
-                        index=index,
-                        information=information
-                    )
+                    try:
+                        CourseIndex.objects.create(
+                            code=code,
+                            name=name,
+                            academic_units=academic_units,
+                            index=index,
+                            information=information
+                        )
+                    except IntegrityError:
+                        duplicate_count += 1
 
                     index_counter += 1
                     if index_counter >= max_indexes:
                         return
+
+    # print(duplicate_count)
     return
