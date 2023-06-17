@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 # Extra imports
 import boto3
+import datetime
 import os
 
 
@@ -170,3 +171,9 @@ ses_client = boto3.client(
     aws_secret_access_key=os.environ.get(
         'AWS_SECRET_ACCESS_KEY', ''),
 )
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ["Bearer"],
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=1),
+}

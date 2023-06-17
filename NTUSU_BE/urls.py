@@ -33,6 +33,7 @@ urlpatterns = [
     path('', lambda _: HttpResponse('NTUSU ITC BACKEND')),
     path('admin/', admin.site.urls),
     path('swagger/', schema_view.with_ui('swagger')),
-    path('sso/', include('sso.urls')),
+
     path('indexswapper/', include('indexswapper.urls')),
+    path('sso/', include('sso.urls')),
 ]
