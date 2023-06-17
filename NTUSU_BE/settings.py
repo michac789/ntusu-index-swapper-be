@@ -10,6 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+# Extra imports
+import boto3
+import datetime
+import os
+
+
+####################
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,11 +45,23 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_yasg',
+    'corsheaders',
+    'django_filters',
+
+    'indexswapper',
+    'sso',
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+
+    'corsheaders.middleware.CorsMiddleware',
+
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -121,3 +141,49 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Additional settings
+
+AUTH_USER_MODEL = 'sso.User'
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "Auth Token eg [Bearer {JWT}]": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
+
+CORS_ALLOW_HEADERS = [
+    "Content-Type", "Authorization"
+]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
+
+ses_client = boto3.client(
+    'ses',
+    region_name='ap-southeast-1',
+    aws_access_key_id=os.environ.get(
+        'AWS_ACCESS_KEY_ID', ''),
+    aws_secret_access_key=os.environ.get(
+        'AWS_SECRET_ACCESS_KEY', ''),
+)
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ["Bearer"],
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=1),
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+}
