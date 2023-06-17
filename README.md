@@ -1,1 +1,60 @@
-# ntusu-index-swapper-be
+# NTUSU Backend - Index Swapper MVP
+
+Simple backend for the NTUSU Index Swapper MVP. For frontend devs, please refer to the steps below to run the server successfully.
+
+## How to Run (for frontend devs)
+
+Prerequisities:
+
+- Python >3.9
+- Pip
+- Git
+- VS Code (recommended)
+
+1. Clone the repository
+
+    ```powershell
+    git clone https://github.com/michac789/ntusu-index-swapper-be.git
+    ```
+
+2. Change your directory inside of the project
+
+    ```powershell
+    cd path/to/ntusu-index-swapper-be
+    ```
+
+3. Install dependencies
+
+   ```powershell
+   git install -r requirements.txt
+   ```
+
+   You may want to use conda or venv to create a virtual environment for this project.
+
+4. Migrate database
+
+   ```powershell
+   python manage.py migrate
+   ```
+
+5. Set admin access
+
+   ```powershell
+   python manage.py createsuperuser
+   ```
+
+   Follow the instructions to create a superuser.
+
+6. Run server
+
+    ```powershell
+    python manage.py runserver
+    ```
+
+    The server should be running on `localhost:8000` by default.
+
+    You can visit Django admin page at `localhost:8000/admin` and login with the superuser account you created.
+
+    You can see the API documentation at `localhost:8000/swagger` and test the API needed there.
+
+    Test data will be provided in the future.
