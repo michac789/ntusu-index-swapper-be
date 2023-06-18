@@ -3,9 +3,13 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from indexswapper.models import CourseIndex
-from indexswapper.serializers import PopulateDatabaseSerializer
+from indexswapper.serializers import (
+    PopulateDatabaseSerializer,
+    CourseIndexPartialSerializer,
+    CourseIndexCompleteSerializer,
+)
 from indexswapper.utils.scraper import populate_modules
 
 
@@ -27,7 +31,16 @@ class PopulateDatabaseView(GenericAPIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CourseIndexViewSet(ViewSet):
+class CourseIndexViewSet(ReadOnlyModelViewSet):
+    queryset = CourseIndex.objects.all()
+    lookup_field = 'index'
+
+    def get_serializer_class(self):
+        return (
+            CourseIndexPartialSerializer if self.action == 'list'
+            else CourseIndexCompleteSerializer
+        )
+
     @action(methods=['get'], detail=False)
     def get_courses(self, *args, **kwargs):
 

@@ -1,5 +1,7 @@
 import os
+from collections import defaultdict
 from rest_framework import serializers
+from indexswapper.models import CourseIndex
 
 
 class PopulateDatabaseSerializer(serializers.Serializer):
@@ -11,3 +13,28 @@ class PopulateDatabaseSerializer(serializers.Serializer):
         if value != os.environ.get('INDEXSWAPPER_ADMIN_KEY', '12345'):
             raise serializers.ValidationError('Invalid admin key!')
         return value
+
+
+class CourseIndexPartialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseIndex
+        fields = ('id', 'code', 'name', 'index', 'pending_count',)
+
+
+class CourseIndexCompleteSerializer(serializers.ModelSerializer):
+    datetime_added = serializers.DateTimeField(
+        format='%Y-%m-%d %H:%M:%S', read_only=True)
+    information = serializers.CharField(write_only=True)
+    information_data = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CourseIndex
+        fields = ('id', 'code', 'name', 'index', 'datetime_added',
+                  'pending_count', 'information', 'information_data',)
+        read_only_fields = ('id', 'datetime_added', 'pending_count',)
+
+    def get_information_data(self, obj):
+        try:
+            return obj.get_information
+        except IndexError or Exception:
+            return 'invalid data format'
