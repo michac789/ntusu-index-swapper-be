@@ -14,9 +14,11 @@ class PopulateDatabaseSerializer(serializers.Serializer):
             raise serializers.ValidationError('Invalid admin key!')
         return value
 
-    def create(self, validated_data):
+    def save(self):
         populate_modules(
-            validated_data['num_entry'], validated_data['web_link'])
+            self.validated_data['num_entry'],
+            self.validated_data['web_link'],
+        )
         return {'message': 'Populated database successfully!'}
 
 
