@@ -1,7 +1,7 @@
 import os
-from collections import defaultdict
 from rest_framework import serializers
 from indexswapper.models import CourseIndex
+from indexswapper.utils.scraper import populate_modules
 
 
 class PopulateDatabaseSerializer(serializers.Serializer):
@@ -13,6 +13,11 @@ class PopulateDatabaseSerializer(serializers.Serializer):
         if value != os.environ.get('INDEXSWAPPER_ADMIN_KEY', '12345'):
             raise serializers.ValidationError('Invalid admin key!')
         return value
+
+    def create(self, validated_data):
+        populate_modules(
+            validated_data['num_entry'], validated_data['web_link'])
+        return {'message': 'Populated database successfully!'}
 
 
 class CourseIndexPartialSerializer(serializers.ModelSerializer):
