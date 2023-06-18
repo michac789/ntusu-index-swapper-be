@@ -10,6 +10,7 @@ from indexswapper.serializers import (
     CourseIndexPartialSerializer,
     CourseIndexCompleteSerializer,
 )
+from indexswapper.utils.mixin import CourseIndexQueryParamsMixin
 
 
 class PopulateDatabaseView(CreateAPIView):
@@ -18,7 +19,8 @@ class PopulateDatabaseView(CreateAPIView):
     permission_classes = [IsSuperUser]
 
 
-class CourseIndexViewSet(ReadOnlyModelViewSet):
+class CourseIndexViewSet(CourseIndexQueryParamsMixin,
+                         ReadOnlyModelViewSet):
     queryset = CourseIndex.objects.all()
     lookup_field = 'index'
 
