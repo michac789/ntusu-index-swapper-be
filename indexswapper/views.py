@@ -1,4 +1,4 @@
-from collections import defaultdict
+from django.http import Http404
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -32,23 +32,18 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
 
     @action(methods=['get'], detail=False)
     def get_courses(self, *args, **kwargs):
+        qs = self.filter_queryset(self.get_queryset())
+        unique_courses = qs.values('code', 'name').distinct()
+        page = self.paginate_queryset(unique_courses)
+        return self.get_paginated_response(page)
 
-        # TODO - not supported on sqlite, change to mysql or postgres soon!
-        # instances = CourseIndex.objects.all().distinct('code')
-
-        instances = CourseIndex.objects.values('code', 'name')
-        unique_course_dict = defaultdict()
-        for instance in instances:
-            unique_course_dict[instance['code']] = instance['name']
-        return Response([{
-            'code': code, 'name': name
-        } for code, name in unique_course_dict.items()])
-
-    @action(methods=['get'], detail=False, url_name='get_indexes',
+    @action(methods=['get'], detail=False,
             url_path='get_indexes/(?P<course_code>[^/.]+)')
     def get_indexes_from_course(self, *args, **kwargs):
-        instances = CourseIndex.objects.filter(code=kwargs['course_code'])
+        qs = CourseIndex.objects.filter(code=kwargs['course_code'])
+        if qs.count() == 0:
+            raise Http404()
         return Response([{
             'index': x.index, 'pending_count': x.pending_count,
             'information': x.get_information
-        } for x in instances])
+        } for x in qs])
