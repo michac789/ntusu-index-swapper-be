@@ -154,7 +154,8 @@ SWAGGER_SETTINGS = {
             "name": "Authorization",
             "in": "header"
         }
-    }
+    },
+    'JSON_EDITOR': True,
 }
 
 CORS_ALLOW_HEADERS = [

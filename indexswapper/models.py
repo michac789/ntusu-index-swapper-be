@@ -54,11 +54,12 @@ class SwapRequest(models.Model):
         CourseIndex, on_delete=models.SET_NULL,
         related_name='available_swap', null=True
     )
+    # TODO - add validation that this (should be list string format)
     wanted_indexes = models.CharField(max_length=100)
 
     @property
     def get_wanted_indexes(self):
-        return self.wanted_indexes.split(';')
+        return eval(self.wanted_indexes)
 
     class Meta:
         verbose_name_plural = 'Swap Requests'
