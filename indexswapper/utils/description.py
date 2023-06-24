@@ -65,10 +65,19 @@ API_DESCRIPTIONS = {
             ...
         ]
         ```
-    '''
+    ''',
+    'swaprequest_search_another': '''
+        TODO - search another
+    ''',
+    'swaprequest_mark_complete': '''
+        TODO - mark complete
+    ''',
+    'swaprequest_cancel_swap': '''
+        TODO - cancel swap
+    ''',
 }
 
 swaprequest_qp = openapi.Parameter(
     'status', openapi.IN_QUERY,
-    description="filter status with 'S' (searching),'W' (waiting), 'C' (completed))",
+    description="filter status with 'S'(searching) or 'W'(waiting) or 'C'(completed))",
     type=openapi.TYPE_STRING)

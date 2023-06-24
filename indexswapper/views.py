@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from indexswapper.models import CourseIndex, SwapRequest
 from indexswapper.permissions import IsSuperUser
@@ -15,6 +16,7 @@ from indexswapper.serializers import (
     SwapRequestCreateSerializer,
     SwapRequestListSerializer,
 )
+from indexswapper.utils.decorator import get_swap_request_with_id_verify, verify_cooldown
 from indexswapper.utils.description import API_DESCRIPTIONS, swaprequest_qp
 from indexswapper.utils.mixin import (
     CourseIndexQueryParamsMixin,
@@ -90,3 +92,36 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
             queryset = backend().filter_queryset(self.request, queryset, self)
         serializer = SwapRequestListSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_search_another'])
+    @action(methods=['patch'], detail=True)
+    @get_swap_request_with_id_verify(SwapRequest.Status.WAITING)
+    @verify_cooldown()
+    def search_another(self, request, *args, **kwargs):
+        # TODO: perform pairing algorithm
+        # TODO: send email to user
+        return Response('ok')
+
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_mark_complete'])
+    @action(methods=['patch'], detail=True)
+    @get_swap_request_with_id_verify(SwapRequest.Status.WAITING)
+    def mark_complete(self, request, *args, **kwargs):
+        kwargs['instance'].status = SwapRequest.Status.COMPLETED
+        kwargs['instance'].save()
+        # TODO: send email swap completed
+        return Response('ok')
+
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_cancel_swap'])
+    @action(methods=['patch'], detail=True)
+    @get_swap_request_with_id_verify(SwapRequest.Status.WAITING, SwapRequest.Status.SEARCHING)
+    def cancel_swap(self, request, *args, **kwargs):
+        if kwargs['instance'].status == SwapRequest.Status.SEARCHING:
+            kwargs['instance'].delete()
+        elif kwargs['instance'].status == SwapRequest.Status.WAITING:
+            # TODO: perform pairing algorithm
+            # TODO: send email to partner (for cancellation)
+            pass
+        else:
+            return Response('Cannot cancel completed request.', status=HTTP_400_BAD_REQUEST)
+        # TODO: send email to self (for cancellation)
+        return Response('ok')
