@@ -1,11 +1,10 @@
-from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.http import Http404
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from indexswapper.models import CourseIndex, SwapRequest
 from indexswapper.permissions import IsSuperUser
@@ -60,12 +59,6 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
         } for x in qs])
 
 
-swaprequest_qp = openapi.Parameter(
-    'status', openapi.IN_QUERY,
-    description="filter status with 'S' (searching),'W' (waiting), 'C' (completed))",
-    type=openapi.TYPE_STRING)
-
-
 class SwapRequestViewSet(SwapRequestQueryParamsMixin,
                          ViewSet):
     permission_classes = [IsAuthenticated]
@@ -80,7 +73,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
             serializer.save(user=request.user)
             # TODO: send email to user
             # TODO: perform pairing algorithm
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         manual_parameters=[swaprequest_qp],
@@ -122,6 +115,6 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
             # TODO: send email to partner (for cancellation)
             pass
         else:
-            return Response('Cannot cancel completed request.', status=HTTP_400_BAD_REQUEST)
+            return Response('Cannot cancel completed request.', status=status.HTTP_400_BAD_REQUEST)
         # TODO: send email to self (for cancellation)
         return Response('ok')

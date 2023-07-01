@@ -83,6 +83,11 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
                     f'Bad request, wanted index {index} ({curr_courseindex.code}) should be the same course code with current index {index} ({instance.code})')
         return data
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['current_index'] = instance.current_index.index
+        return data
+
 
 class SwapRequestListSerializer(serializers.ModelSerializer):
     datetime_added = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')

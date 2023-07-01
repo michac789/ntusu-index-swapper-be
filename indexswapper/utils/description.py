@@ -27,7 +27,7 @@ API_DESCRIPTIONS = {
             if it has wrong data type, or if it exceeds max character
         - Return 404 if CourseIndex instance with index 'current_index' does not exist
         - Return 400 if any of the index in wanted_indexes is invalid, or if it is the same as current index,
-            or if any of the index in wanted_indexes is not the same course code as current index
+            or if any of the index in wanted_indexes is not the same course code and at least one wanted_index needed,
         - Return 201 with created instance if SwapRequest instance is created successfully
     ''',
     'swaprequest_list': '''
