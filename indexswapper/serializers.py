@@ -85,7 +85,10 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        data['course_code'] = instance.current_index.code
+        data['course_name'] = instance.current_index.name
         data['current_index'] = instance.current_index.index
+        data['id'] = instance.id
         return data
 
 

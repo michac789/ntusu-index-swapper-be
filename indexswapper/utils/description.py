@@ -67,13 +67,58 @@ API_DESCRIPTIONS = {
         ```
     ''',
     'swaprequest_search_another': '''
-        TODO - search another
+        What this endpoint does:
+        - Search another pair if current pair does not work out
+        - Send confirmation email
+
+        It is used in this scenario:
+        - Current SwapRequest status is 'W' (waiting), means that a pair is found,
+        but the pair can't be contacted or the pair does not want to swap anymore
+        - User still wants to search another pair, so this endpoint is called
+        - Note that there is a cooldown for 24 hours before you can search another pair again
+    
+        Return output:
+        - Return 401 if user is not logged in
+        - Return 404 if SwapRequest instance with this id does not exist
+        - Return 403 if SwapRequest instance is not created by this user
+        - Return 400 if SwapRequest instance status is not 'W' (waiting),
+        or if SwapRequest instance cooldown is not yet expired
+        - Return 200 if successful
     ''',
     'swaprequest_mark_complete': '''
-        TODO - mark complete
+        What this endpoint does:
+        - Mark current SwapRequest instance as completed
+        - Send confirmation email
+
+        It is used in this scenario:
+        - Current SwapRequest status is 'W' (waiting), means that a pair is found,
+        and the swap has been successfully performed so the user mark it as completed
+        *(marking as completed won't affect the status of the pair)
+        - I am still considering whether this is necessary, I see no incentive for people to do this
+    
+        Return output:
+        - Return 401 if user is not logged in
+        - Return 404 if SwapRequest instance with this id does not exist
+        - Return 403 if SwapRequest instance is not created by this user
+        - Return 400 if SwapRequest instance status is not 'W' (waiting) or 'S' (searching)
+        - Return 200 if successful
     ''',
     'swaprequest_cancel_swap': '''
-        TODO - cancel swap
+        What this endpoint does:
+        - Cancel a SwapRequest instance
+
+        It is used in this scenario:
+        - Current SwapRequest status is 'W' (waiting), means that a pair is found,
+        but the pair can't be contacted or the pair does not want to swap anymore
+        - User still wants to search another pair, so this endpoint is called
+        - Note that there is a cooldown for 24 hours before you can search another pair again
+    
+        Return output:
+        - Return 401 if user is not logged in
+        - Return 404 if SwapRequest instance with this id does not exist
+        - Return 403 if SwapRequest instance is not created by this user
+        - Return 400 if SwapRequest instance status is not 'W' (waiting)
+        - Return 200 if successful
     ''',
 }
 

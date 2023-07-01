@@ -71,7 +71,10 @@ class SwapRequestCreateTestCase(BaseAPITestCase):
         })
         self.assertEqual(resp.status_code, 201)
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertIn('id', resp_json)
         self.assertEqual(resp_json['contact_info'],
                          'sample contact information')
+        self.assertEqual(resp_json['course_code'], 'MH1100')
+        self.assertEqual(resp_json['course_name'], 'CALCULUS I')
         self.assertEqual(resp_json['current_index'], '70181')
         self.assertEqual(resp_json['wanted_indexes'], ['70185', '70186'])

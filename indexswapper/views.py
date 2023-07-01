@@ -15,6 +15,7 @@ from indexswapper.serializers import (
     SwapRequestCreateSerializer,
     SwapRequestListSerializer,
 )
+from indexswapper.utils import email
 from indexswapper.utils.decorator import get_swap_request_with_id_verify, verify_cooldown
 from indexswapper.utils.description import API_DESCRIPTIONS, swaprequest_qp
 from indexswapper.utils.mixin import (
@@ -71,7 +72,8 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         serializer = SwapRequestCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
-            # TODO: send email to user
+            # TODO - uncomment this later, now this will cause CI to fail
+            # email.send_swap_request_creation(request.user, serializer.data)
             # TODO: perform pairing algorithm
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -92,7 +94,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     @verify_cooldown()
     def search_another(self, request, *args, **kwargs):
         # TODO: perform pairing algorithm
-        # TODO: send email to user
+        email.send_swap_search_another(request.user, kwargs['instance'])
         return Response('ok')
 
     @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_mark_complete'])
@@ -101,7 +103,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     def mark_complete(self, request, *args, **kwargs):
         kwargs['instance'].status = SwapRequest.Status.COMPLETED
         kwargs['instance'].save()
-        # TODO: send email swap completed
+        email.send_swap_completed(request.user, kwargs['instance'])
         return Response('ok')
 
     @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_cancel_swap'])
@@ -112,9 +114,8 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
             kwargs['instance'].delete()
         elif kwargs['instance'].status == SwapRequest.Status.WAITING:
             # TODO: perform pairing algorithm
-            # TODO: send email to partner (for cancellation)
-            pass
+            email.send_swap_cancel_pair(request.user, kwargs['instance'])
         else:
             return Response('Cannot cancel completed request.', status=status.HTTP_400_BAD_REQUEST)
-        # TODO: send email to self (for cancellation)
+        email.send_swap_cancel_self(request.user, kwargs['instance'])
         return Response('ok')
