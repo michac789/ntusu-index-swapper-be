@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
 from indexswapper.models import CourseIndex, SwapRequest
-from indexswapper.permissions import IsSuperUser
 from indexswapper.serializers import (
     PopulateDatabaseSerializer,
     CourseIndexPartialSerializer,
@@ -22,6 +21,7 @@ from indexswapper.utils.mixin import (
     CourseIndexQueryParamsMixin,
     SwapRequestQueryParamsMixin,
 )
+from sso.permissions import IsSuperUser
 
 
 class PopulateDatabaseView(CreateAPIView):
@@ -72,7 +72,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         serializer = SwapRequestCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
-            # TODO - uncomment this later, now this will cause CI to fail
+            # TODO - this caused ci to fail, uncomment this later!
             # email.send_swap_request_creation(request.user, serializer.data)
             # TODO: perform pairing algorithm
             return Response(serializer.data, status=status.HTTP_201_CREATED)
