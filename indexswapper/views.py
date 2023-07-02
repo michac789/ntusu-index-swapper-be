@@ -71,7 +71,8 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         operation_description=API_DESCRIPTIONS['swaprequest_create'],
     )
     def create(self, request):
-        serializer = SwapRequestCreateSerializer(data=request.data)
+        serializer = SwapRequestCreateSerializer(
+            data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
             email.send_swap_request_creation(request.user, serializer.data)

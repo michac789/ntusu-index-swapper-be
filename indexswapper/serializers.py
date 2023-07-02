@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from indexswapper.models import CourseIndex, SwapRequest
 from indexswapper.utils.scraper import populate_modules
+from indexswapper.utils.validation import ConflictValidationError
 
 
 class PopulateDatabaseSerializer(serializers.Serializer):
@@ -70,6 +71,13 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
         instance = get_object_or_404(
             CourseIndex,
             index=data['current_index_num'])
+        if SwapRequest.objects.filter(
+            user=self.context['request'].user,
+            current_index=instance,
+            status__in=['S', 'W']
+        ).count() != 0:
+            raise ConflictValidationError(
+                f'Conflict error, user already has a swap request for index {instance.index}')
         for index in data['wanted_indexes']:
             try:
                 curr_courseindex = CourseIndex.objects.get(index=index)

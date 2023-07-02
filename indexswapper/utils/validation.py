@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator
 from django.db.models import Model
+from rest_framework.exceptions import APIException
 
 
 class ConvertibleListIndexValidator(BaseValidator):
@@ -24,3 +25,15 @@ class ConvertibleListIndexValidator(BaseValidator):
                         f'Index {index} ({instance.code}) is not from the same course code with current index (code needed: {self.course_code})')
         except (NameError, SyntaxError):
             raise ValidationError('Value is not convertible to a list.')
+
+
+class ConflictValidationError(APIException):
+    status_code = 409
+    default_detail = 'Conflict.'
+
+    def __init__(self, detail=None, code=None):
+        if detail is not None:
+            self.detail = {'detail': str(detail)}
+        else:
+            self.detail = {'detail': str(self.default_detail)}
+        self.code = code

@@ -63,6 +63,20 @@ class SwapRequestCreateTestCase(BaseAPITestCase):
         })
         self.assertEqual(resp.status_code, 400)
 
+    def test_fail_conflict(self):
+        # user has created a swap request with the same index, and the status is S or W
+        self.client1.post(self.ENDPOINT, {
+            'contact_info': 'sample contact information',
+            'current_index_num': '70200',
+            'wanted_indexes': ['70201'],
+        })
+        resp = self.client1.post(self.ENDPOINT, {
+            'contact_info': 'sample contact information',
+            'current_index_num': '70200',
+            'wanted_indexes': ['70202', '70203'],
+        })
+        self.assertEqual(resp.status_code, 409)
+
     def test_success(self):
         resp = self.client1.post(self.ENDPOINT, {
             'contact_info': 'sample contact information',

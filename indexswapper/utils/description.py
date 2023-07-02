@@ -15,7 +15,8 @@ API_DESCRIPTIONS = {
             currently it is free text (no specific format validation)
         - **current_index**: _string (max 5 characters)_
             course index that the user currently has and wants to be swapped,
-            must be a valid course index, all course indexes are unique
+            must be a valid course index (all indexes are unique),
+            this user don't have an ongoing SwapRequest with the same index (status S or W)
         - **wanted_indexes**: _list of strings (max 5 characters each, min 1 item in list)_
             list of course indexes that the user wants to swap to,
             each of those index should be valid, should not be the same as current index,
@@ -26,6 +27,7 @@ API_DESCRIPTIONS = {
         - Return 400 bad request if any of the expected input is not present, or
             if it has wrong data type, or if it exceeds max character
         - Return 404 if CourseIndex instance with index 'current_index' does not exist
+        - Return 409 if user has an ongoing SwapRequest with the same index (status S or W)
         - Return 400 if any of the index in wanted_indexes is invalid, or if it is the same as current index,
             or if any of the index in wanted_indexes is not the same course code and at least one wanted_index needed,
         - Return 201 with created instance if SwapRequest instance is created successfully

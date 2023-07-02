@@ -51,6 +51,9 @@ Prerequisities:
    ```
 
    Note: Please run the above command in order!
+   Also, run this command only once when you first setup the project.
+   If you have added additional data, running this may cause an error.
+   In that case, you might consider resetting the database before loading the sample data.
 
 6. Run server
 
