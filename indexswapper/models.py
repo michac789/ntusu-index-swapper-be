@@ -1,5 +1,10 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import (
+    MinLengthValidator,
+    MinValueValidator,
+    MaxValueValidator,
+)
 from django.db import models
+from indexswapper.utils.validation import ConvertibleListIndexValidator
 from sso.models import User
 
 
@@ -7,8 +12,7 @@ class CourseIndex(models.Model):
     code = models.CharField(max_length=6)
     name = models.CharField(max_length=100)
     academic_units = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
-    )
+        validators=[MinValueValidator(1), MaxValueValidator(10)])
     index = models.CharField(max_length=5, unique=True)
     datetime_added = models.DateTimeField(auto_now_add=True)
     information = models.TextField()
@@ -25,6 +29,12 @@ class CourseIndex(models.Model):
             }
         return [serialize(x) for x in self.information.split(';')]
 
+    @property
+    def get_pending_count_dict(self) -> dict:
+        # filter all swap request who wants this index
+
+        return {}
+
     class Meta:
         verbose_name_plural = 'Course Indexes'
 
@@ -40,31 +50,35 @@ class SwapRequest(models.Model):
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        related_name='swap_requests'
-    )
-    contact_info = models.CharField(max_length=100)
+        related_name='swap_requests')
+    contact_info = models.CharField(
+        max_length=100, validators=[MinLengthValidator(5)])
     status = models.CharField(
         max_length=1,
         choices=Status.choices,
-        default=Status.SEARCHING
-    )
+        default=Status.SEARCHING)
     datetime_added = models.DateTimeField(auto_now_add=True)
     datetime_found = models.DateTimeField(blank=True, null=True)
     current_index = models.ForeignKey(
         CourseIndex, on_delete=models.SET_NULL,
-        related_name='available_swap', null=True
-    )
+        related_name='available_swap', null=True)
     wanted_indexes = models.CharField(max_length=100)
+    pair = models.OneToOneField(
+        'self', on_delete=models.SET_NULL, null=True, blank=True)
+    index_gained = models.CharField(max_length=6, default='', blank=True)
 
     @property
     def get_wanted_indexes(self):
-        return self.wanted_indexes.split(';')
+        return eval(self.wanted_indexes)
 
     class Meta:
         verbose_name_plural = 'Swap Requests'
 
+    def clean(self):
+        validator = ConvertibleListIndexValidator(
+            CourseIndex, self.current_index.code)
+        validator(self.wanted_indexes)
+
     def __str__(self):
-        return f'''<Swap Request by '{self.user.username}':
-            {self.current_index.code} ({self.current_index.index}
-            to {self.wanted_indexes})>
-        '''
+        return f'''<Swap Request by '{self.user.username}': \
+{self.current_index.code} ({self.current_index.index} to {self.wanted_indexes})>'''

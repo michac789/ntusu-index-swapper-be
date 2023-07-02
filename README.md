@@ -37,24 +37,33 @@ Prerequisities:
    python manage.py migrate
    ```
 
-5. Set admin access
+5. Load sample data
+
+   Sample data will provides you will all of this:
+   - A superuser account (username: superuser), and 5 regular accounts (username: user1, user2, user3, user4, user5), password are all '123'
+   - Sample course indexes (33 indexes across 3 different courses)
+
+   Please refer to the `fixtures` folder for the detail of the sample data.
 
    ```powershell
-   python manage.py createsuperuser
+   python manage.py loaddata sample_user.json
+   python manage.py loaddata sample_course_index_small.json
+   python manage.py loaddata sample_swap_request_small.json
    ```
 
-   Follow the instructions to create a superuser.
+   Note: Please run the above command in order!
+   Also, run this command only once when you first setup the project.
+   If you have added additional data, running this may cause an error.
+   In that case, you might consider resetting the database before loading the sample data.
 
 6. Run server
 
-    ```powershell
-    python manage.py runserver
-    ```
+   ```powershell
+   python manage.py runserver
+   ```
 
-    The server should be running on `localhost:8000` by default.
+   The server should be running on `localhost:8000` by default.
 
-    You can visit Django admin page at `localhost:8000/admin` and login with the superuser account you created.
+   You can visit Django admin page at `localhost:8000/admin` and login with the superuser account.
 
-    You can see the API documentation at `localhost:8000/swagger` and test the API needed there.
-
-    Test data will be provided in the future.
+   You can see the API documentation at `localhost:8000/swagger` and test the API needed there.

@@ -8,7 +8,7 @@ class BaseAPITestCase(APITestCase):
     '''
     Inherits from rest_framework APITestCase,
     provides setUpTestData class method that has 3 users
-    (user1 as superuser, user2 & user3 as regular users),
+    (user1x as superuser, user2x & user3x as regular users),
     3 different clients for testing purpose as follows:
     Client 1 -> superuser (logged in as user1)
     Client 2 -> regular user (logged in as user2)
@@ -17,16 +17,19 @@ class BaseAPITestCase(APITestCase):
     @classmethod
     def setUpTestData(self):
         self.user1 = User.objects.create_superuser(
-            username='user1',
+            username='user1x',
             password='123',
+            email='user1x@mail.com',
         )
         self.user2 = User.objects.create_user(
-            username='user2',
+            username='user2x',
             password='456',
+            email='user2x@mail.com',
         )
         self.user3 = User.objects.create_user(
-            username='user3',
+            username='user3x',
             password='789',
+            email='user3x@mail.com'
         )
         self.client1 = APIClient()
         self.client2 = APIClient()
@@ -34,7 +37,7 @@ class BaseAPITestCase(APITestCase):
         resp1 = self.client1.post(
             reverse('sso:token_obtain_pair'),
             {
-                'username': 'user1',
+                'username': 'user1x',
                 'password': '123'
             },
             format='json'
@@ -44,7 +47,7 @@ class BaseAPITestCase(APITestCase):
         resp2 = self.client2.post(
             reverse('sso:token_obtain_pair'),
             {
-                'username': 'user2',
+                'username': 'user2x',
                 'password': '456'
             },
             format='json'

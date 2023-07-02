@@ -1,10 +1,9 @@
 from json import loads
-from sso.tests.base_test import BaseAPITestCase
+from indexswapper.tests.base_test import IndexSwapperBaseTestCase
 
 
-class CourseIndexListTestCase(BaseAPITestCase):
+class CourseIndexListTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = '/indexswapper/courseindex/'
-    fixtures = ['sample_course_index_small.json']
 
     def test_fail_not_found_page(self):
         resp = self.client3.get(self.ENDPOINT, {
@@ -26,6 +25,10 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['count'], 33)
         self.assertEqual(resp_json['total_pages'], 4)
         self.assertEqual(len(resp_json['results']), 10)
+        self.assertEqual(list(resp_json.keys()), [
+                         'count', 'total_pages', 'results'])
+        self.assertEqual(list(resp_json['results'][0].keys()), [
+                         'id', 'code', 'name', 'index', 'pending_count'])
 
     def test_success_qp_pagination(self):
         resp = self.client3.get(self.ENDPOINT, {
@@ -57,6 +60,18 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['total_pages'], 2)
         self.assertEqual(resp_json['results'][0]['code'], 'MH1300')
 
+    def test_success_qp_pending_count_lte_gte(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'pending_count__gte': '1',
+            'pending_count__lte': '2'
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 7)
+        self.assertEqual(resp_json['total_pages'], 1)
+        for result in resp_json['results']:
+            self.assertTrue(result['pending_count'] >= 1)
+            self.assertTrue(result['pending_count'] <= 2)
+
     def test_success_qp_index(self):
         resp = self.client3.get(self.ENDPOINT, {
             'index': '70218'
@@ -65,11 +80,7 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['count'], 1)
         self.assertEqual(resp_json['total_pages'], 1)
         self.assertEqual(resp_json['results'][0]['code'], 'MH1300')
-        # TODO - assert pending count (after sample data is finalized)
-
-    # TODO - make test for pending_count_lt qp
-
-    # TODO - make test for pending_count_gt qp
+        self.assertEqual(resp_json['results'][0]['pending_count'], 2)
 
     def test_qp_ordering_1(self):
         resp = self.client3.get(self.ENDPOINT, {
@@ -105,10 +116,24 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['results'][19]
                          ['name'], 'FOUNDATIONS OF MATHEMATICS')
 
+    def test_qp_ordering_4(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'ordering': 'pending_count, -index',
+            'pending_count__gte': 1,
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 8)
+        self.assertEqual(resp_json['total_pages'], 1)
+        self.assertEqual(resp_json['results'][0]['index'], '70204')
+        self.assertEqual(resp_json['results'][1]['index'], '70203')
+        self.assertEqual(resp_json['results'][2]['index'], '70201')
+        self.assertEqual(resp_json['results'][5]['index'], '70181')
+        self.assertEqual(resp_json['results'][6]['index'], '70218')
+        self.assertEqual(resp_json['results'][7]['index'], '70220')
 
-class CourseIndexRetrieveTestCase(BaseAPITestCase):
+
+class CourseIndexRetrieveTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = (lambda _, index: f'/indexswapper/courseindex/{index}/')
-    fixtures = ['sample_course_index_small.json']
 
     def test_fail_invalid_index(self):
         resp = self.client3.get(self.ENDPOINT('99999'))
@@ -119,17 +144,34 @@ class CourseIndexRetrieveTestCase(BaseAPITestCase):
         resp_json = loads(resp.content.decode('utf-8'))
         self.assertEqual(resp_json['code'], 'MH1100')
         self.assertEqual(resp_json['name'], 'CALCULUS I')
+        self.assertEqual(resp_json['pending_count'], 1)
+        self.assertEqual(resp_json['pending_dict'], {'70191': 1})
         self.assertEqual(list(resp_json.keys()), [
                          'id', 'code', 'name', 'index', 'datetime_added',
-                         'pending_count', 'information_data'])
+                         'information_data', 'pending_count', 'pending_dict'])
         self.assertEqual(len(resp_json['information_data']), 18)
         self.assertEqual(list(resp_json['information_data'][0].keys()),
                          ['type', 'group', 'day', 'time', 'venue', 'remark'])
 
+    def test_success_2(self):
+        resp = self.client3.get(self.ENDPOINT('70220'))
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['code'], 'MH1300')
+        self.assertEqual(resp_json['name'], 'FOUNDATIONS OF MATHEMATICS')
+        self.assertEqual(resp_json['pending_count'], 3)
+        self.assertEqual(resp_json['pending_dict'], {'70215': 1, '70221': 2, })
+        self.assertEqual(len(resp_json['information_data']), 18)
+        self.assertEqual(resp_json['information_data']
+                         [0]['type'], 'LEC/STUDIO')
+        self.assertEqual(resp_json['information_data'][0]['group'], 'LE')
+        self.assertEqual(resp_json['information_data'][0]['day'], 'FRI')
+        self.assertEqual(resp_json['information_data'][0]['time'], '1130-1220')
+        self.assertEqual(resp_json['information_data'][0]['venue'], 'LT23')
+        self.assertEqual(resp_json['information_data'][0]['remark'], '')
 
-class CourseIndexGetCoursesTestCase(BaseAPITestCase):
+
+class CourseIndexGetCoursesTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = '/indexswapper/courseindex/get_courses/'
-    fixtures = ['sample_course_index_small.json']
 
     def test_success_default(self):
         resp = self.client3.get(self.ENDPOINT)
@@ -141,6 +183,10 @@ class CourseIndexGetCoursesTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['results'][1]['code'], 'MH1200')
         self.assertEqual(resp_json['results'][2]['code'], 'MH1300')
         self.assertEqual(resp_json['results'][0]['name'], 'CALCULUS I')
+        self.assertEqual(list(resp_json.keys()),
+                         ['count', 'total_pages', 'results'])
+        self.assertEqual(list(resp_json['results'][0].keys()),
+                         ['code', 'name'])
 
     def test_success_qp_pagination(self):
         resp = self.client3.get(self.ENDPOINT, {
@@ -176,10 +222,9 @@ class CourseIndexGetCoursesTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['results'][0]['code'], 'MH1100')
 
 
-class CourseIndexGetIndexesTestCase(BaseAPITestCase):
+class CourseIndexGetIndexesTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = (
         lambda _, course_code: f'/indexswapper/courseindex/get_indexes/{course_code}/')
-    fixtures = ['sample_course_index_small.json']
 
     def test_fail_invalid_course(self):
         resp = self.client3.get(self.ENDPOINT('ZZ9999'))
@@ -190,6 +235,6 @@ class CourseIndexGetIndexesTestCase(BaseAPITestCase):
         resp_json = loads(resp.content.decode('utf-8'))
         self.assertEqual(len(resp_json), 12)
         self.assertEqual(list(resp_json[0].keys()), [
-                         'index', 'pending_count', 'information'])
+                         'index', 'information', 'pending_count'])
         self.assertEqual(list(resp_json[0]['information'][0].keys()), [
                          'type', 'group', 'day', 'time', 'venue', 'remark'])

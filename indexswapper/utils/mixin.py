@@ -22,8 +22,15 @@ class CourseIndexQueryParamsMixin:
         'code': ['icontains'],
         'name': ['icontains'],
         'index': ['exact'],
-        'pending_count': ['lt', 'gt'],
+        'pending_count': ['lte', 'gte'],
     }
-    ordering_fields = ['code', 'name', 'index', 'pending_count']
+    ordering_fields = ['code', 'name', 'index', 'pending_count',]
     pagination_class = PaginationConfig
     # TODO - consider implement full-text search indexing too (need PostgreSQL)
+
+
+class SwapRequestQueryParamsMixin:
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'status': ['exact'],
+    }
