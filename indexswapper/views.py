@@ -15,6 +15,7 @@ from indexswapper.serializers import (
     SwapRequestListSerializer,
 )
 from indexswapper.utils import email
+from indexswapper.utils.algo import perform_pairing
 from indexswapper.utils.decorator import get_swap_request_with_id_verify, verify_cooldown
 from indexswapper.utils.description import API_DESCRIPTIONS, swaprequest_qp
 from indexswapper.utils.mixin import (
@@ -72,9 +73,9 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         serializer = SwapRequestCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
-            # TODO - this caused ci to fail, uncomment this later!
+            # TODO - cause CI to fail, uncomment this later!
             # email.send_swap_request_creation(request.user, serializer.data)
-            # TODO: perform pairing algorithm
+            perform_pairing(serializer.data['id'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
@@ -93,7 +94,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     @get_swap_request_with_id_verify(SwapRequest.Status.WAITING)
     @verify_cooldown()
     def search_another(self, request, *args, **kwargs):
-        # TODO: perform pairing algorithm
+        perform_pairing(kwargs['instance'].id)
         email.send_swap_search_another(request.user, kwargs['instance'])
         return Response('ok')
 
@@ -113,7 +114,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         if kwargs['instance'].status == SwapRequest.Status.SEARCHING:
             kwargs['instance'].delete()
         elif kwargs['instance'].status == SwapRequest.Status.WAITING:
-            # TODO: perform pairing algorithm
+            perform_pairing(kwargs['instance'].id)
             email.send_swap_cancel_pair(request.user, kwargs['instance'])
         else:
             return Response('Cannot cancel completed request.', status=status.HTTP_400_BAD_REQUEST)

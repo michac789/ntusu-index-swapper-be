@@ -57,6 +57,9 @@ class SwapRequest(models.Model):
         CourseIndex, on_delete=models.SET_NULL,
         related_name='available_swap', null=True)
     wanted_indexes = models.CharField(max_length=100)
+    pair = models.OneToOneField(
+        'self', on_delete=models.SET_NULL, null=True, blank=True)
+    index_gained = models.CharField(max_length=6, default='')
 
     @property
     def get_wanted_indexes(self):
@@ -71,7 +74,5 @@ class SwapRequest(models.Model):
         validator(self.wanted_indexes)
 
     def __str__(self):
-        return f'''<Swap Request by '{self.user.username}':
-            {self.current_index.code} ({self.current_index.index}
-            to {self.wanted_indexes})>
-        '''
+        return f'''<Swap Request by '{self.user.username}': \
+{self.current_index.code} ({self.current_index.index} to {self.wanted_indexes})>'''
