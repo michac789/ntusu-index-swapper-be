@@ -99,7 +99,7 @@
         "datetime_added": "2023-07-02T08:04:48.200Z",
         "datetime_found": null,
         "current_index": 33,
-        "wanted_indexes": "['70218']",
+        "wanted_indexes": "['70218', '70220']",
         "pair": null,
         "index_gained": ""
     }
@@ -115,6 +115,21 @@
         "datetime_found": null,
         "current_index": 11,
         "wanted_indexes": "['70181', '70186', '70190']",
+        "pair": null,
+        "index_gained": ""
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 9,
+    "fields": {
+        "user": 3,
+        "contact_info": "Email - user2@mail.com",
+        "status": "S",
+        "datetime_added": "2023-07-02T09:52:04.803Z",
+        "datetime_found": null,
+        "current_index": 27,
+        "wanted_indexes": "['70218', '70220']",
         "pair": null,
         "index_gained": ""
     }

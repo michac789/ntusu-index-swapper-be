@@ -110,16 +110,11 @@ API_DESCRIPTIONS = {
         - Cancel a SwapRequest instance
 
         It is used in this scenario:
-        - Current SwapRequest status is 'W' (waiting), means that a pair is found,
-        but the pair can't be contacted or the pair does not want to swap anymore
-        - User still wants to search another pair, so this endpoint is called
+        - Current SwapRequest status is 'W' (waiting) or 'S' (searching),
+        and for some rea
 
-        Return output:
-        - Return 401 if user is not logged in
-        - Return 404 if SwapRequest instance with this id does not exist
-        - Return 403 if SwapRequest instance is not created by this user
-        - Return 400 if SwapRequest instance status is not 'W' (waiting)
-        - Return 200 if successful
+        TODO...
+        TODO - consider editing swap request while status is searching (?)
     ''',
 }
 

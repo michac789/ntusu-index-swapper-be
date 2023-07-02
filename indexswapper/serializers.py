@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 from django.core.validators import MinLengthValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -28,8 +29,7 @@ class PopulateDatabaseSerializer(serializers.Serializer):
 class CourseIndexPartialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseIndex
-        fields = ('id', 'code', 'name', 'index',)
-        # TODO - add pending count (need to add property to model)
+        fields = ('id', 'code', 'name', 'index', 'pending_count',)
 
 
 class CourseIndexCompleteSerializer(serializers.ModelSerializer):
@@ -37,18 +37,30 @@ class CourseIndexCompleteSerializer(serializers.ModelSerializer):
         format='%Y-%m-%d %H:%M:%S', read_only=True)
     information = serializers.CharField(write_only=True)
     information_data = serializers.SerializerMethodField(read_only=True)
+    pending_dict = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseIndex
         fields = ('id', 'code', 'name', 'index', 'datetime_added',
-                  'information', 'information_data',)
+                  'information', 'information_data', 'pending_count', 'pending_dict',)
         read_only_fields = ('id', 'datetime_added',)
 
     def get_information_data(self, obj):
         try:
             return obj.get_information
         except IndexError or Exception:
-            return 'invalid data format'
+            return []
+
+    def get_pending_dict(self, obj):
+        instances = SwapRequest.objects.filter(
+            status=SwapRequest.Status.SEARCHING,
+            current_index__code=obj.code)
+        pending_dict = defaultdict(int)
+        for instance in instances:
+            for index in instance.get_wanted_indexes:
+                if index == obj.index:
+                    pending_dict[instance.current_index.index] += 1
+        return pending_dict
 
 
 class SwapRequestCreateSerializer(serializers.ModelSerializer):
@@ -65,6 +77,11 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
         validated_data['current_index'] = CourseIndex.objects.get(
             index=validated_data['current_index_num'])
         del validated_data['current_index_num']
+        for index in validated_data['wanted_indexes']:
+            course_index = CourseIndex.objects.get(index=index)
+            course_index.pending_count += 1
+            course_index.save()
+            # TODO - implement transaction to prevent clash
         return super().create(validated_data)
 
     def validate(self, data):

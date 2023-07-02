@@ -16,6 +16,7 @@ class CourseIndex(models.Model):
     index = models.CharField(max_length=5, unique=True)
     datetime_added = models.DateTimeField(auto_now_add=True)
     information = models.TextField()
+    pending_count = models.IntegerField(default=0)
 
     @property
     def get_information(self):
@@ -27,6 +28,12 @@ class CourseIndex(models.Model):
                 'venue': a[4], 'remark': a[5]
             }
         return [serialize(x) for x in self.information.split(';')]
+
+    @property
+    def get_pending_count_dict(self) -> dict:
+        # filter all swap request who wants this index
+
+        return {}
 
     class Meta:
         verbose_name_plural = 'Course Indexes'

@@ -48,6 +48,7 @@ Prerequisities:
    ```powershell
    python manage.py loaddata sample_user.json
    python manage.py loaddata sample_course_index_small.json
+   python manage.py loaddata sample_swap_request_small.json
    ```
 
    Note: Please run the above command in order!
