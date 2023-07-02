@@ -4,7 +4,7 @@ from indexswapper.models import CourseIndex, SwapRequest
 
 class SwapRequestAdmin(admin.ModelAdmin):
     list_display = (
-        'user', 'current_index',
+        'id', 'user', 'current_index',
         'status', 'wanted_indexes')
 
 

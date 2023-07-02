@@ -58,7 +58,7 @@ class SwapRequest(models.Model):
     wanted_indexes = models.CharField(max_length=100)
     pair = models.OneToOneField(
         'self', on_delete=models.SET_NULL, null=True, blank=True)
-    index_gained = models.CharField(max_length=6, default='')
+    index_gained = models.CharField(max_length=6, default='', blank=True)
 
     @property
     def get_wanted_indexes(self):

@@ -10,8 +10,8 @@ from indexswapper.models import SwapRequest
 def get_swap_request_with_id_verify(*allowed_status):
     '''
         Custom decorator that gets SwapRequest object by its id (given in url).
+        Assumes that user is authenticated.
         Takes in allowed status args, which are the status allowed for the object.
-        Return 401 if user is not authenticated.
         Return 404 if object is not found.
         Return 403 if requesting user is not owner of object.
         Return 400 if object status is not in allowed status.
@@ -19,11 +19,10 @@ def get_swap_request_with_id_verify(*allowed_status):
     '''
     def decorator(func):
         @wraps(func)
-        @login_required
-        def wrapper(request, *args, **kwargs):
+        def wrapper(self, request, *args, **kwargs):
             kwargs['instance'] = get_object_or_404(
-                SwapRequest, id=kwargs['id'])
-            if kwargs['instance'].owner != request.user:
+                SwapRequest, id=kwargs['pk'])
+            if kwargs['instance'].user != request.user:
                 return Response({
                     'error': 'you are not the owner of this request'
                 }, status=status.HTTP_403_FORBIDDEN)
@@ -31,7 +30,7 @@ def get_swap_request_with_id_verify(*allowed_status):
                 return Response({
                     'error': f'only allow status of {allowed_status}'
                 }, status=status.HTTP_400_BAD_REQUEST)
-            return func(request, *args, **kwargs)
+            return func(self, request, *args, **kwargs)
         return wrapper
     return decorator
 

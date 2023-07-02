@@ -1,0 +1,122 @@
+[
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 1,
+    "fields": {
+        "user": 2,
+        "contact_info": "Telegram - @user1zzz",
+        "status": "W",
+        "datetime_added": "2023-07-02T07:29:49.731Z",
+        "datetime_found": null,
+        "current_index": 1,
+        "wanted_indexes": "['70182', '70183', '70184']",
+        "pair": 3,
+        "index_gained": "70184"
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 2,
+    "fields": {
+        "user": 2,
+        "contact_info": "Telegram - @user1zzz",
+        "status": "S",
+        "datetime_added": "2023-07-02T07:30:26.445Z",
+        "datetime_found": null,
+        "current_index": 33,
+        "wanted_indexes": "['70220']",
+        "pair": null,
+        "index_gained": ""
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 3,
+    "fields": {
+        "user": 3,
+        "contact_info": "Email - user2@mail.com",
+        "status": "W",
+        "datetime_added": "2023-07-02T07:49:12.223Z",
+        "datetime_found": null,
+        "current_index": 4,
+        "wanted_indexes": "['70185', '70181']",
+        "pair": 1,
+        "index_gained": "70181"
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 4,
+    "fields": {
+        "user": 4,
+        "contact_info": "Email - user3@mail.com",
+        "status": "S",
+        "datetime_added": "2023-07-02T07:50:45.610Z",
+        "datetime_found": null,
+        "current_index": 13,
+        "wanted_indexes": "['70201', '70203', '70204']",
+        "pair": null,
+        "index_gained": ""
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 5,
+    "fields": {
+        "user": 4,
+        "contact_info": "Email - user3@mail.com",
+        "status": "W",
+        "datetime_added": "2023-07-02T07:52:32.368Z",
+        "datetime_found": null,
+        "current_index": 28,
+        "wanted_indexes": "['70212', '70211']",
+        "pair": 6,
+        "index_gained": "70211"
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 6,
+    "fields": {
+        "user": 5,
+        "contact_info": "Telegram - @user4abc",
+        "status": "C",
+        "datetime_added": "2023-07-02T07:55:57.820Z",
+        "datetime_found": null,
+        "current_index": 23,
+        "wanted_indexes": "['70216', '70217']",
+        "pair": 5,
+        "index_gained": "70216"
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 7,
+    "fields": {
+        "user": 6,
+        "contact_info": "Whatsapp - 87654321",
+        "status": "S",
+        "datetime_added": "2023-07-02T08:04:48.200Z",
+        "datetime_found": null,
+        "current_index": 33,
+        "wanted_indexes": "['70218']",
+        "pair": null,
+        "index_gained": ""
+    }
+},
+{
+    "model": "indexswapper.swaprequest",
+    "pk": 8,
+    "fields": {
+        "user": 6,
+        "contact_info": "Whatsapp - 87654321",
+        "status": "S",
+        "datetime_added": "2023-07-02T08:05:38.638Z",
+        "datetime_found": null,
+        "current_index": 11,
+        "wanted_indexes": "['70181', '70186', '70190']",
+        "pair": null,
+        "index_gained": ""
+    }
+}
+]

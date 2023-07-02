@@ -113,8 +113,7 @@ API_DESCRIPTIONS = {
         - Current SwapRequest status is 'W' (waiting), means that a pair is found,
         but the pair can't be contacted or the pair does not want to swap anymore
         - User still wants to search another pair, so this endpoint is called
-        - Note that there is a cooldown for 24 hours before you can search another pair again
-    
+
         Return output:
         - Return 401 if user is not logged in
         - Return 404 if SwapRequest instance with this id does not exist
