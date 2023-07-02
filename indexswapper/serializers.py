@@ -27,7 +27,8 @@ class PopulateDatabaseSerializer(serializers.Serializer):
 class CourseIndexPartialSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseIndex
-        fields = ('id', 'code', 'name', 'index', 'pending_count',)
+        fields = ('id', 'code', 'name', 'index',)
+        # TODO - add pending count (need to add property to model)
 
 
 class CourseIndexCompleteSerializer(serializers.ModelSerializer):
@@ -39,8 +40,8 @@ class CourseIndexCompleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseIndex
         fields = ('id', 'code', 'name', 'index', 'datetime_added',
-                  'pending_count', 'information', 'information_data',)
-        read_only_fields = ('id', 'datetime_added', 'pending_count',)
+                  'information', 'information_data',)
+        read_only_fields = ('id', 'datetime_added',)
 
     def get_information_data(self, obj):
         try:

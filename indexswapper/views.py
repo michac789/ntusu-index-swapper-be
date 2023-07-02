@@ -56,9 +56,10 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
         if qs.count() == 0:
             raise Http404()
         return Response([{
-            'index': x.index, 'pending_count': x.pending_count,
+            'index': x.index,
             'information': x.get_information
         } for x in qs])
+    # TODO - reconsider if this endpoint is needed or not
 
 
 class SwapRequestViewSet(SwapRequestQueryParamsMixin,
@@ -73,8 +74,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         serializer = SwapRequestCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
-            # TODO - cause CI to fail, uncomment this later!
-            # email.send_swap_request_creation(request.user, serializer.data)
+            email.send_swap_request_creation(request.user, serializer.data)
             perform_pairing(serializer.data['id'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 

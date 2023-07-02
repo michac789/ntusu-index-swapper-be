@@ -19,14 +19,17 @@ class BaseAPITestCase(APITestCase):
         self.user1 = User.objects.create_superuser(
             username='user1',
             password='123',
+            email='user1@mail.com',
         )
         self.user2 = User.objects.create_user(
             username='user2',
             password='456',
+            email='user2@mail.com',
         )
         self.user3 = User.objects.create_user(
             username='user3',
             password='789',
+            email='user3@mail.com'
         )
         self.client1 = APIClient()
         self.client2 = APIClient()

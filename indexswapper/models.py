@@ -16,7 +16,6 @@ class CourseIndex(models.Model):
     index = models.CharField(max_length=5, unique=True)
     datetime_added = models.DateTimeField(auto_now_add=True)
     information = models.TextField()
-    pending_count = models.IntegerField(default=0)
 
     @property
     def get_information(self):

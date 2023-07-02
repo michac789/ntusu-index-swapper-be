@@ -121,7 +121,7 @@ class CourseIndexRetrieveTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['name'], 'CALCULUS I')
         self.assertEqual(list(resp_json.keys()), [
                          'id', 'code', 'name', 'index', 'datetime_added',
-                         'pending_count', 'information_data'])
+                         'information_data'])
         self.assertEqual(len(resp_json['information_data']), 18)
         self.assertEqual(list(resp_json['information_data'][0].keys()),
                          ['type', 'group', 'day', 'time', 'venue', 'remark'])
@@ -190,6 +190,6 @@ class CourseIndexGetIndexesTestCase(BaseAPITestCase):
         resp_json = loads(resp.content.decode('utf-8'))
         self.assertEqual(len(resp_json), 12)
         self.assertEqual(list(resp_json[0].keys()), [
-                         'index', 'pending_count', 'information'])
+                         'index', 'information'])
         self.assertEqual(list(resp_json[0]['information'][0].keys()), [
                          'type', 'group', 'day', 'time', 'venue', 'remark'])

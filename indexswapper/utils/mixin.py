@@ -22,9 +22,8 @@ class CourseIndexQueryParamsMixin:
         'code': ['icontains'],
         'name': ['icontains'],
         'index': ['exact'],
-        'pending_count': ['lt', 'gt'],
     }
-    ordering_fields = ['code', 'name', 'index', 'pending_count']
+    ordering_fields = ['code', 'name', 'index',]
     pagination_class = PaginationConfig
     # TODO - consider implement full-text search indexing too (need PostgreSQL)
 
