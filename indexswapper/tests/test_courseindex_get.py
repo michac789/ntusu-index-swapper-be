@@ -1,11 +1,9 @@
 from json import loads
-from sso.tests.base_test import BaseAPITestCase
+from indexswapper.tests.base_test import IndexSwapperBaseTestCase
 
 
-class CourseIndexListTestCase(BaseAPITestCase):
+class CourseIndexListTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = '/indexswapper/courseindex/'
-    fixtures = ['sample_user.json', 'sample_course_index_small.json',
-                'sample_swap_request_small.json']
 
     def test_fail_not_found_page(self):
         resp = self.client3.get(self.ENDPOINT, {
@@ -134,10 +132,8 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['results'][7]['index'], '70220')
 
 
-class CourseIndexRetrieveTestCase(BaseAPITestCase):
+class CourseIndexRetrieveTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = (lambda _, index: f'/indexswapper/courseindex/{index}/')
-    fixtures = ['sample_user.json', 'sample_course_index_small.json',
-                'sample_swap_request_small.json']
 
     def test_fail_invalid_index(self):
         resp = self.client3.get(self.ENDPOINT('99999'))
@@ -174,10 +170,8 @@ class CourseIndexRetrieveTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['information_data'][0]['remark'], '')
 
 
-class CourseIndexGetCoursesTestCase(BaseAPITestCase):
+class CourseIndexGetCoursesTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = '/indexswapper/courseindex/get_courses/'
-    fixtures = ['sample_user.json', 'sample_course_index_small.json',
-                'sample_swap_request_small.json']
 
     def test_success_default(self):
         resp = self.client3.get(self.ENDPOINT)
@@ -228,11 +222,9 @@ class CourseIndexGetCoursesTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['results'][0]['code'], 'MH1100')
 
 
-class CourseIndexGetIndexesTestCase(BaseAPITestCase):
+class CourseIndexGetIndexesTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = (
         lambda _, course_code: f'/indexswapper/courseindex/get_indexes/{course_code}/')
-    fixtures = ['sample_user.json', 'sample_course_index_small.json',
-                'sample_swap_request_small.json']
 
     def test_fail_invalid_course(self):
         resp = self.client3.get(self.ENDPOINT('ZZ9999'))

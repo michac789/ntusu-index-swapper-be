@@ -1,11 +1,9 @@
 from json import loads
-from sso.tests.base_test import BaseAPITestCase
+from indexswapper.tests.base_test import IndexSwapperBaseTestCase
 
 
-class SwapRequestCreateTestCase(BaseAPITestCase):
+class SwapRequestCreateTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = '/indexswapper/swaprequest/'
-    fixtures = ['sample_user.json', 'sample_course_index_small.json',
-                'sample_swap_request_small.json']
 
     def test_fail_unauthorized(self):
         resp = self.client3.get(self.ENDPOINT)
@@ -93,3 +91,5 @@ class SwapRequestCreateTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['course_name'], 'CALCULUS I')
         self.assertEqual(resp_json['current_index'], '70181')
         self.assertEqual(resp_json['wanted_indexes'], ['70185', '70186'])
+
+    # TODO - test algorithm here

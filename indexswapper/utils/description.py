@@ -70,7 +70,7 @@ API_DESCRIPTIONS = {
     ''',
     'swaprequest_search_another': '''
         What this endpoint does:
-        - Search another pair if current pair does not work out
+        - Search another pair (call the swap algorithm again)
         - Send confirmation email
 
         It is used in this scenario:
