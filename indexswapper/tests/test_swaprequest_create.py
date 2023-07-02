@@ -4,7 +4,8 @@ from sso.tests.base_test import BaseAPITestCase
 
 class SwapRequestCreateTestCase(BaseAPITestCase):
     ENDPOINT = '/indexswapper/swaprequest/'
-    fixtures = ['sample_course_index_small.json']
+    fixtures = ['sample_user.json', 'sample_course_index_small.json',
+                'sample_swap_request_small.json']
 
     def test_fail_unauthorized(self):
         resp = self.client3.get(self.ENDPOINT)

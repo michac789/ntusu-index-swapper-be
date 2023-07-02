@@ -49,6 +49,7 @@ def perform_pairing(swap_request_id: int):
             instance.index_gained = swap_request.current_index.index
             instance.save()
             swap_request.save()
+            # TODO - implement transaction to prevent clash
             for i in [swap_request, instance]:
                 for index in i.get_wanted_indexes:
                     course_index = CourseIndex.objects.get(id=index)

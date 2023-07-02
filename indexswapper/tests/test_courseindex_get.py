@@ -62,6 +62,18 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['total_pages'], 2)
         self.assertEqual(resp_json['results'][0]['code'], 'MH1300')
 
+    def test_success_qp_pending_count_lte_gte(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'pending_count__gte': '1',
+            'pending_count__lte': '2'
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 7)
+        self.assertEqual(resp_json['total_pages'], 1)
+        for result in resp_json['results']:
+            self.assertTrue(result['pending_count'] >= 1)
+            self.assertTrue(result['pending_count'] <= 2)
+
     def test_success_qp_index(self):
         resp = self.client3.get(self.ENDPOINT, {
             'index': '70218'
@@ -106,7 +118,20 @@ class CourseIndexListTestCase(BaseAPITestCase):
         self.assertEqual(resp_json['results'][19]
                          ['name'], 'FOUNDATIONS OF MATHEMATICS')
 
-    # TODO - add qp for sorting based on pending_count, then add test case
+    def test_qp_ordering_4(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'ordering': 'pending_count, -index',
+            'pending_count__gte': 1,
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 8)
+        self.assertEqual(resp_json['total_pages'], 1)
+        self.assertEqual(resp_json['results'][0]['index'], '70204')
+        self.assertEqual(resp_json['results'][1]['index'], '70203')
+        self.assertEqual(resp_json['results'][2]['index'], '70201')
+        self.assertEqual(resp_json['results'][5]['index'], '70181')
+        self.assertEqual(resp_json['results'][6]['index'], '70218')
+        self.assertEqual(resp_json['results'][7]['index'], '70220')
 
 
 class CourseIndexRetrieveTestCase(BaseAPITestCase):
@@ -218,6 +243,6 @@ class CourseIndexGetIndexesTestCase(BaseAPITestCase):
         resp_json = loads(resp.content.decode('utf-8'))
         self.assertEqual(len(resp_json), 12)
         self.assertEqual(list(resp_json[0].keys()), [
-                         'index', 'information'])
+                         'index', 'information', 'pending_count'])
         self.assertEqual(list(resp_json[0]['information'][0].keys()), [
                          'type', 'group', 'day', 'time', 'venue', 'remark'])

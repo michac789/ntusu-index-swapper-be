@@ -57,9 +57,9 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
             raise Http404()
         return Response([{
             'index': x.index,
-            'information': x.get_information
+            'information': x.get_information,
+            'pending_count': x.pending_count,
         } for x in qs])
-    # TODO - reconsider if this endpoint is needed or not
 
 
 class SwapRequestViewSet(SwapRequestQueryParamsMixin,

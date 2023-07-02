@@ -91,7 +91,8 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
         if SwapRequest.objects.filter(
             user=self.context['request'].user,
             current_index=instance,
-            status__in=['S', 'W']
+            status__in=[SwapRequest.Status.SEARCHING,
+                        SwapRequest.Status.WAITING]
         ).count() != 0:
             raise ConflictValidationError(
                 f'Conflict error, user already has a swap request for index {instance.index}')
