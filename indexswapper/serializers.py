@@ -71,7 +71,8 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SwapRequest
-        fields = ('contact_info', 'current_index_num', 'wanted_indexes')
+        fields = ('contact_info', 'contact_type',
+                  'current_index_num', 'wanted_indexes')
 
     def create(self, validated_data):
         validated_data['current_index'] = CourseIndex.objects.get(

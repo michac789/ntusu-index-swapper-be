@@ -13,6 +13,8 @@ API_DESCRIPTIONS = {
         - **contact_info**: _string (max 100 characters)_
             expected contact information preferred by user such as telegram username, phone number, or email
             currently it is free text (no specific format validation)
+        - **contact_type**: _string (max 1 character)_
+            either 'E' (email) or 'T' (telegram) or 'P' (phone / WhatsApp)
         - **current_index**: _string (max 5 characters)_
             course index that the user currently has and wants to be swapped,
             must be a valid course index (all indexes are unique),

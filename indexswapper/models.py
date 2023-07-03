@@ -29,12 +29,6 @@ class CourseIndex(models.Model):
             }
         return [serialize(x) for x in self.information.split(';')]
 
-    @property
-    def get_pending_count_dict(self) -> dict:
-        # filter all swap request who wants this index
-
-        return {}
-
     class Meta:
         verbose_name_plural = 'Course Indexes'
 
@@ -48,11 +42,18 @@ class SwapRequest(models.Model):
         WAITING = 'W', 'Waiting'
         COMPLETED = 'C', 'Completed'
 
+    class ContactType(models.TextChoices):
+        EMAIL = 'E', 'Email'
+        TELEGRAM = 'T', 'Telegram'
+        PHONE = 'P', 'Phone'
+
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='swap_requests')
     contact_info = models.CharField(
         max_length=100, validators=[MinLengthValidator(5)])
+    contact_type = models.CharField(
+        max_length=1, choices=ContactType.choices)
     status = models.CharField(
         max_length=1,
         choices=Status.choices,

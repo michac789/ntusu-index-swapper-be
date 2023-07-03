@@ -22,11 +22,12 @@ class SwapRequestGetTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(len(resp_json), 2)
         self.assertEqual(list(resp_json[0].keys()),
                          ['id', 'datetime_added', 'datetime_found', 'wanted_indexes', 'current_index',
-                          'contact_info', 'status', 'index_gained', 'user', 'pair'])
+                          'contact_info', 'contact_type', 'status', 'index_gained', 'user', 'pair'])
         self.assertEqual(resp_json[0]['wanted_indexes'], [
                          '70182', '70183', '70184'])
         self.assertEqual(resp_json[0]['current_index'], '70181')
-        self.assertEqual(resp_json[0]['contact_info'], 'Telegram - @user1zzz')
+        self.assertEqual(resp_json[0]['contact_info'], '@user1zzz')
+        self.assertEqual(resp_json[0]['contact_type'], 'T')
         self.assertEqual(resp_json[0]['status'], 'W')
         self.assertEqual(resp_json[0]['index_gained'], '70184')
         self.assertEqual(resp_json[0]['pair'], 3)

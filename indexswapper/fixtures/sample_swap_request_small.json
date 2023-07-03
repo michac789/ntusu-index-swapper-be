@@ -4,7 +4,8 @@
     "pk": 1,
     "fields": {
         "user": 2,
-        "contact_info": "Telegram - @user1zzz",
+        "contact_info": "@user1zzz",
+        "contact_type": "T",
         "status": "W",
         "datetime_added": "2023-07-02T07:29:49.731Z",
         "datetime_found": null,
@@ -19,7 +20,8 @@
     "pk": 2,
     "fields": {
         "user": 2,
-        "contact_info": "Telegram - @user1zzz",
+        "contact_info": "@user1zzz",
+        "contact_type": "T",
         "status": "S",
         "datetime_added": "2023-07-02T07:30:26.445Z",
         "datetime_found": null,
@@ -34,7 +36,8 @@
     "pk": 3,
     "fields": {
         "user": 3,
-        "contact_info": "Email - user2@mail.com",
+        "contact_info": "user2@mail.com",
+        "contact_type": "E",
         "status": "W",
         "datetime_added": "2023-07-02T07:49:12.223Z",
         "datetime_found": null,
@@ -49,7 +52,8 @@
     "pk": 4,
     "fields": {
         "user": 4,
-        "contact_info": "Email - user3@mail.com",
+        "contact_info": "user3@mail.com",
+        "contact_type": "E",
         "status": "S",
         "datetime_added": "2023-07-02T07:50:45.610Z",
         "datetime_found": null,
@@ -64,7 +68,8 @@
     "pk": 5,
     "fields": {
         "user": 4,
-        "contact_info": "Email - user3@mail.com",
+        "contact_info": "user3@mail.com",
+        "contact_type": "E",
         "status": "W",
         "datetime_added": "2023-07-02T07:52:32.368Z",
         "datetime_found": null,
@@ -79,7 +84,8 @@
     "pk": 6,
     "fields": {
         "user": 5,
-        "contact_info": "Telegram - @user4abc",
+        "contact_info": "@user4abc",
+        "contact_type": "T",
         "status": "C",
         "datetime_added": "2023-07-02T07:55:57.820Z",
         "datetime_found": null,
@@ -94,7 +100,8 @@
     "pk": 7,
     "fields": {
         "user": 6,
-        "contact_info": "Whatsapp - 87654321",
+        "contact_info": "87654321",
+        "contact_type": "P",
         "status": "S",
         "datetime_added": "2023-07-02T08:04:48.200Z",
         "datetime_found": null,
@@ -109,7 +116,8 @@
     "pk": 8,
     "fields": {
         "user": 6,
-        "contact_info": "Whatsapp - 87654321",
+        "contact_info": "87654321",
+        "contact_type": "P",
         "status": "S",
         "datetime_added": "2023-07-02T08:05:38.638Z",
         "datetime_found": null,
@@ -124,7 +132,8 @@
     "pk": 9,
     "fields": {
         "user": 3,
-        "contact_info": "Email - user2@mail.com",
+        "contact_info": "user2@mail.com",
+        "contact_type": "E",
         "status": "S",
         "datetime_added": "2023-07-02T09:52:04.803Z",
         "datetime_found": null,
