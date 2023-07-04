@@ -20,13 +20,13 @@ Prerequisities:
 2. Change your directory inside of the project
 
     ```powershell
-    cd path/to/ntusu-index-swapper-be
+    cd ntusu-index-swapper-be
     ```
 
 3. Install dependencies
 
    ```powershell
-   git install -r requirements.txt
+   pip install -r requirements.txt
    ```
 
    You may want to use conda or venv to create a virtual environment for this project.
