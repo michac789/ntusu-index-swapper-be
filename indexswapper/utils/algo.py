@@ -1,3 +1,4 @@
+from django.utils import timezone as tz
 from indexswapper.models import CourseIndex, SwapRequest
 
 
@@ -47,12 +48,14 @@ def perform_pairing(swap_request_id: int):
             instance.pair = swap_request
             swap_request.index_gained = instance.current_index.index
             instance.index_gained = swap_request.current_index.index
-            instance.save()
+            swap_request.datetime_found = tz.now()
+            instance.datetime_found = tz.now()
             swap_request.save()
+            instance.save()
             # TODO - implement transaction to prevent clash
             for i in [swap_request, instance]:
                 for index in i.get_wanted_indexes:
-                    course_index = CourseIndex.objects.get(id=index)
+                    course_index = CourseIndex.objects.get(index=index)
                     course_index.pending_count -= 1
                     course_index.save()
             return True

@@ -33,11 +33,11 @@ This is a confirmation email that you are currently finding a new pair.
 We apologize for the inconvenience that the previous pair does not work out.
 We will take necessary action to prevent irresponsible users from abusing this system.<br>
 Here is the information of your swap request:<br>
-ID: {swap_request['id']}<br>
-Your Contact Information: {swap_request['contact_info']}<br>
-Course: {swap_request['course_name']} ({swap_request['course_code']})<br>
-Current Index: {swap_request['current_index']}<br>
-Wanted Indexes: {', '.join(swap_request['wanted_indexes'])}<br>
+ID: {swap_request.id}<br>
+Your Contact Information: {swap_request.contact_info}<br>
+Course: {swap_request.current_index.name} ({swap_request.current_index.code})<br>
+Current Index: {swap_request.current_index}<br>
+Wanted Indexes: {', '.join(swap_request.wanted_indexes)}<br>
 <br>
 An algorithm is currently searching for a pair for you.
 You will be contacted shortly through this email if a pair is found.
@@ -63,11 +63,11 @@ def send_swap_cancel_self(user: User, swap_request: SwapRequest):
 Hi, {user.username}!<br>
 <br>
 This is a confirmation email that you have cancelled this swap request:<br>
-ID: {swap_request['id']}<br>
-Your Contact Information: {swap_request['contact_info']}<br>
-Course: {swap_request['course_name']} ({swap_request['course_code']})<br>
-Current Index: {swap_request['current_index']}<br>
-Wanted Indexes: {', '.join(swap_request['wanted_indexes'])}<br>
+ID: {swap_request.id}<br>
+Your Contact Information: {swap_request.contact_info}<br>
+Course: {swap_request.current_index.name} ({swap_request.current_index.index})<br>
+Current Index: {swap_request.current_index}<br>
+Wanted Indexes: {', '.join(swap_request.wanted_indexes)}<br>
 <br>
 We apologize if you cancel this due to long waiting time, or no pair is found.<br>
 {DO_NOT_REPLY_MESSAGE}
@@ -81,11 +81,11 @@ def send_swap_cancel_pair(user: User, swap_request: SwapRequest):
 Hi, {user.username}!<br>
 <br>
 This is a confirmation email that you have cancelled this swap request:<br>
-ID: {swap_request['id']}<br>
-Your Contact Information: {swap_request['contact_info']}<br>
-Course: {swap_request['course_name']} ({swap_request['course_code']})<br>
-Current Index: {swap_request['current_index']}<br>
-Wanted Indexes: {', '.join(swap_request['wanted_indexes'])}<br>
+ID: {swap_request.id}<br>
+Your Contact Information: {swap_request.contact_info}<br>
+Course: {swap_request.current_index.index} ({swap_request.current_index.code})<br>
+Current Index: {swap_request.current_index}<br>
+Wanted Indexes: {', '.join(swap_request.wanted_indexes)}<br>
 <br>
 We apologize if you cancel this due to long waiting time, or no pair is found.<br>
 {DO_NOT_REPLY_MESSAGE}

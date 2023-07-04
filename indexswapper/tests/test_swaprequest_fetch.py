@@ -24,16 +24,13 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp.status_code, 400)
 
     def test_fail_not_waiting_status_2(self):
-        pass
-        # TODO - bug fix: date time found is not updated now!
         # completed status
-        # resp = self.user4c.patch(self.ENDPOINT(6))
-        # self.assertEqual(resp.status_code, 400)
+        resp = self.user4c.patch(self.ENDPOINT(6))
+        self.assertEqual(resp.status_code, 400)
 
     def test_success(self):
-        pass  # TODO - bug fix: date time found is not updated now!
-        # resp = self.user1c.patch(self.ENDPOINT(1))
-        # self.assertEqual(resp.status_code, 200)
+        resp = self.user1c.patch(self.ENDPOINT(1))
+        self.assertEqual(resp.status_code, 200)
         # TODO - add more assertions later!
 
 
