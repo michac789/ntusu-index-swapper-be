@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from datetime import timedelta
 from django.shortcuts import get_object_or_404
 from django.utils import timezone as tz
 from functools import wraps
@@ -46,7 +46,7 @@ def verify_cooldown(COOLDOWN_HOURS=24):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
             dt_found = kwargs['instance'].datetime_found
-            if dt_found and tz.now() < dt_found + COOLDOWN_HOURS:
+            if dt_found and tz.now() < dt_found + timedelta(hours=COOLDOWN_HOURS):
                 return Response({
                     'error': 'waiting for cooldown',
                     'time_left': -tz.now() + dt_found + COOLDOWN_HOURS

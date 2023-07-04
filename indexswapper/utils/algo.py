@@ -19,22 +19,26 @@ def perform_pairing(swap_request_id: int):
     - when a pair has been matched, swap unsuccessful after cooldown,
         and one side reinitiate the search
         (call with this user's swap request id, no need to do for the other side)
+    TODO - make one more status: CANCELLED
 
     Pseudocode:
-    - Make this SwapRequest status to SEARCHING (it may be 'WAITING')
+    - Make this SwapRequest status to SEARCHING (it may be 'WAITING'), reset some values
     - Filter all swap request that has status of waiting, has the same course code,
         and exclude this swap request
     - For each instance of the filtered swap request:
         - If this swap request's current index is in the instance's wanted indexes,
             and the instance's current index is in this swap request's wanted indexes,
             then:
-            - Fill in the 'pair' column and 'index_gained' column for both swap requests
+            - Fill in the 'pair', 'index_gained', 'datetime_found' column for both swap requests
             - Set both swap requests' status to WAITING
             - Return True
     - Otherwise return False
     '''
     swap_request = SwapRequest.objects.get(id=swap_request_id)
     swap_request.status = SwapRequest.Status.SEARCHING
+    swap_request.index_gained = ''
+    swap_request.pair = None
+    swap_request.datetime_found = None
     instances = SwapRequest.objects.filter(
         status=SwapRequest.Status.SEARCHING,
         current_index__code=swap_request.current_index.code)\
@@ -48,8 +52,9 @@ def perform_pairing(swap_request_id: int):
             instance.pair = swap_request
             swap_request.index_gained = instance.current_index.index
             instance.index_gained = swap_request.current_index.index
-            swap_request.datetime_found = tz.now()
-            instance.datetime_found = tz.now()
+            found_time = tz.now()
+            swap_request.datetime_found = found_time
+            instance.datetime_found = found_time
             swap_request.save()
             instance.save()
             # TODO - implement transaction to prevent clash

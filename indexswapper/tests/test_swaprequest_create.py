@@ -1,4 +1,5 @@
 from json import loads
+from indexswapper.models import SwapRequest
 from indexswapper.tests.base_test import IndexSwapperBaseTestCase
 
 
@@ -100,4 +101,118 @@ class SwapRequestCreateTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json['current_index'], '70181')
         self.assertEqual(resp_json['wanted_indexes'], ['70185', '70186'])
 
-    # TODO - test algorithm here
+
+class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
+    ENDPOINT = '/indexswapper/swaprequest/'
+
+    def test_algo_pair_found_1(self):
+        resp = self.client2.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70220',
+            'wanted_indexes': ['70219', '70221'],
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        swaprequest_id = resp_json['id']
+        instance = SwapRequest.objects.get(id=swaprequest_id)
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(instance.status, SwapRequest.Status.WAITING)
+        self.assertEqual(instance.index_gained, '70221')
+        self.assertEqual(instance.pair.id, 2)
+        self.assertEqual(instance.pair.status, SwapRequest.Status.WAITING)
+        self.assertEqual(instance.pair.index_gained, '70220')
+        self.assertIsNotNone(instance.pair.datetime_found)
+        self.assertIsNotNone(instance.datetime_added)
+        self.assertIsNotNone(instance.datetime_found)
+        self.assertEqual(instance.datetime_found, instance.pair.datetime_found)
+
+    def test_algo_pair_found_2(self):
+        resp = self.client2.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70204',
+            'wanted_indexes': ['70195', '70201', '70205'],
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        swaprequest_id = resp_json['id']
+        instance = SwapRequest.objects.get(id=swaprequest_id)
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(instance.status, SwapRequest.Status.WAITING)
+        self.assertEqual(instance.index_gained, '70195')
+        self.assertEqual(instance.pair.id, 4)
+        self.assertEqual(instance.pair.status, SwapRequest.Status.WAITING)
+        self.assertEqual(instance.pair.index_gained, '70204')
+        self.assertIsNotNone(instance.pair.datetime_found)
+        self.assertIsNotNone(instance.datetime_added)
+        self.assertIsNotNone(instance.datetime_found)
+        self.assertEqual(instance.datetime_found, instance.pair.datetime_found)
+
+    def test_algo_pair_not_found_1(self):
+        resp = self.client2.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70220',
+            'wanted_indexes': ['70219'],
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        swaprequest_id = resp_json['id']
+        instance = SwapRequest.objects.get(id=swaprequest_id)
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(instance.status, SwapRequest.Status.SEARCHING)
+        self.assertEqual(instance.index_gained, '')
+        self.assertIsNone(instance.datetime_found)
+        self.assertIsNone(instance.pair)
+        self.assertIsNotNone(instance.datetime_added)
+
+    def test_algo_pair_not_found_2(self):
+        resp = self.client2.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70196',
+            'wanted_indexes': ['70195', '70201', '70205'],
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        swaprequest_id = resp_json['id']
+        instance = SwapRequest.objects.get(id=swaprequest_id)
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(instance.status, SwapRequest.Status.SEARCHING)
+        self.assertEqual(instance.index_gained, '')
+        self.assertIsNone(instance.datetime_found)
+        self.assertIsNone(instance.pair)
+        self.assertIsNotNone(instance.datetime_added)
+
+    def test_algo_pair_not_found_3(self):
+        # should not be paired with SwapRequest that is WAITING
+        resp = self.client2.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70182',
+            'wanted_indexes': ['70181'],
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        swaprequest_id = resp_json['id']
+        instance = SwapRequest.objects.get(id=swaprequest_id)
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(instance.status, SwapRequest.Status.SEARCHING)
+        self.assertEqual(instance.index_gained, '')
+        self.assertIsNone(instance.datetime_found)
+        self.assertIsNone(instance.pair)
+        self.assertIsNotNone(instance.datetime_added)
+
+    def test_algo_pair_not_found_4(self):
+        # should not be paired with SwapRequest that is COMPLETED
+        resp = self.client2.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70217',
+            'wanted_indexes': ['70211', '70212'],
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        swaprequest_id = resp_json['id']
+        instance = SwapRequest.objects.get(id=swaprequest_id)
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(instance.status, SwapRequest.Status.SEARCHING)
+        self.assertEqual(instance.index_gained, '')
+        self.assertIsNone(instance.datetime_found)
+        self.assertIsNone(instance.pair)
+        self.assertIsNotNone(instance.datetime_added)

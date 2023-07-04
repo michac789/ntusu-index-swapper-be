@@ -64,7 +64,7 @@ class SwapRequest(models.Model):
         CourseIndex, on_delete=models.SET_NULL,
         related_name='available_swap', null=True)
     wanted_indexes = models.CharField(max_length=100)
-    pair = models.OneToOneField(
+    pair = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True)
     index_gained = models.CharField(max_length=6, default='', blank=True)
 
