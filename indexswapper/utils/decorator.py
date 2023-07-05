@@ -22,6 +22,12 @@ def get_swap_request_with_id_verify(*allowed_status):
     def decorator(func):
         @wraps(func)
         def wrapper(self, request, *args, **kwargs):
+            try:
+                kwargs['pk'] = int(kwargs['pk'])
+            except ValueError:
+                return Response({
+                    'error': f'ID received: {kwargs["pk"]} is not an integer!'
+                }, status=status.HTTP_400_BAD_REQUEST)
             kwargs['instance'] = get_object_or_404(
                 SwapRequest, id=kwargs['pk'])
             if kwargs['instance'].user != request.user:

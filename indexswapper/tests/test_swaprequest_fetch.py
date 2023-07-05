@@ -13,6 +13,10 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         resp = self.client3.patch(self.ENDPOINT(1))
         self.assertEqual(resp.status_code, 401)
 
+    def test_fail_pk_not_int(self):
+        resp = self.user1c.patch(self.ENDPOINT('abc'))
+        self.assertEqual(resp.status_code, 400)
+
     def test_fail_not_found(self):
         resp = self.user1c.patch(self.ENDPOINT(99999))
         self.assertEqual(resp.status_code, 404)

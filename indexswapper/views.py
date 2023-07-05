@@ -13,6 +13,7 @@ from indexswapper.serializers import (
     CourseIndexCompleteSerializer,
     SwapRequestCreateSerializer,
     SwapRequestListSerializer,
+    SwapRequestEditSerializer,
 )
 from indexswapper.utils import email
 from indexswapper.utils.algo import perform_pairing
@@ -42,6 +43,15 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
             else CourseIndexCompleteSerializer
         )
 
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['courseindex_list'])
+    def list(self, *args, **kwargs):
+        return super().list(*args, **kwargs)
+
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['courseindex_retrieve'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['courseindex_get_courses'])
     @action(methods=['get'], detail=False)
     def get_courses(self, *args, **kwargs):
         qs = self.filter_queryset(self.get_queryset())
@@ -49,6 +59,7 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
         page = self.paginate_queryset(unique_courses)
         return self.get_paginated_response(page)
 
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['courseindex_get_indexes'])
     @action(methods=['get'], detail=False,
             url_path='get_indexes/(?P<course_code>[^/.]+)')
     def get_indexes_from_course(self, *args, **kwargs):
@@ -68,26 +79,35 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
 
     @swagger_auto_schema(
         request_body=SwapRequestCreateSerializer,
-        operation_description=API_DESCRIPTIONS['swaprequest_create'],
-    )
+        operation_description=API_DESCRIPTIONS['swaprequest_create'])
     def create(self, request):
         serializer = SwapRequestCreateSerializer(
             data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user)
-            email.send_swap_request_creation(request.user, serializer.data)
-            perform_pairing(serializer.data['id'])
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        email.send_swap_request_creation(request.user, serializer.data)
+        perform_pairing(serializer.data['id'])
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         manual_parameters=[swaprequest_qp],
-        operation_description=API_DESCRIPTIONS['swaprequest_list']
-    )
+        operation_description=API_DESCRIPTIONS['swaprequest_list'])
     def list(self, request):
         queryset = SwapRequest.objects.filter(user=request.user.id)
         for backend in list(self.filter_backends):
             queryset = backend().filter_queryset(self.request, queryset, self)
         serializer = SwapRequestListSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=SwapRequestEditSerializer,
+        operation_description=API_DESCRIPTIONS['swaprequest_update'])
+    @get_swap_request_with_id_verify(SwapRequest.Status.SEARCHING, SwapRequest.Status.WAITING)
+    def update(self, request, *args, **kwargs):
+        serializer = SwapRequestEditSerializer(
+            instance=kwargs['instance'], data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
         return Response(serializer.data)
 
     @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_search_another'])

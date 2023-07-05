@@ -141,3 +141,9 @@ class SwapRequestListSerializer(serializers.ModelSerializer):
 
     def get_current_index(self, obj):
         return obj.current_index.index
+
+
+class SwapRequestEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwapRequest
+        fields = ('contact_info', 'contact_type',)
