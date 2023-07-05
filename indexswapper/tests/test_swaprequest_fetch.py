@@ -1,4 +1,5 @@
 from json import loads
+from unittest.mock import patch
 from indexswapper.models import SwapRequest
 from indexswapper.tests.base_test import IndexSwapperBaseTestCase
 
@@ -30,7 +31,23 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         resp = self.user4c.patch(self.ENDPOINT(6))
         self.assertEqual(resp.status_code, 400)
 
-    # TODO - test cooldown!
+    def test_fail_cooldown_unfinished(self):
+        # note: we only simply test failure if we search another right after making the first swaprequest
+        # assume that the `COOLDOWN_HOURS` in `verify_cooldown` decorator is at least 1 hour
+        resp = self.client1.post(self.CREATE_ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70220',
+            'wanted_indexes': ['70221', '70217'],
+        })
+        self.assertEqual(resp.status_code, 201)
+        resp_json = loads(resp.content.decode('utf-8'))
+        resp2 = self.client1.patch(self.ENDPOINT(resp_json['id']))
+        self.assertEqual(resp2.status_code, 400)
+        resp_json_2 = loads(resp2.content.decode('utf-8'))
+        self.assertEqual(resp_json_2['error'], 'waiting for cooldown')
+        self.assertGreater(float(resp_json_2['time_left']), 0)
+        self.assertEqual(list(resp_json_2.keys()), ['error', 'time_left'])
 
     def test_success_pair_found(self):
         SWAPREQUEST_ID = 1
@@ -96,7 +113,7 @@ class SwapRequestMarkCompleteTestCase(IndexSwapperBaseTestCase):
 
     def test_fail_not_waiting_status_1(self):
         # already completed
-        resp = self.user3c.patch(self.ENDPOINT(4))
+        resp = self.user4c.patch(self.ENDPOINT(6))
         self.assertEqual(resp.status_code, 400)
 
     def test_fail_not_waiting_status_2(self):
@@ -104,12 +121,39 @@ class SwapRequestMarkCompleteTestCase(IndexSwapperBaseTestCase):
         resp = self.user1c.patch(self.ENDPOINT(2))
         self.assertEqual(resp.status_code, 400)
 
-    def test_success(self):
+    @patch('indexswapper.utils.email.send_swap_completed')
+    def test_success(self, mock_func):
         resp = self.user1c.patch(self.ENDPOINT(1))
         self.assertEqual(resp.status_code, 200)
-        # TODO - add more assertions later!
+        swap_request = SwapRequest.objects.get(id=1)
+        self.assertEqual(swap_request.status, SwapRequest.Status.COMPLETED)
+        mock_func.assert_called_once()
 
 
 class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = (lambda _, id: f'/indexswapper/swaprequest/{id}/cancel_swap/')
-    # TODO - add test cases here later!
+
+    def test_fail_unauthorized(self):
+        resp = self.client3.patch(self.ENDPOINT(1))
+        self.assertEqual(resp.status_code, 401)
+
+    def test_fail_not_found(self):
+        resp = self.user1c.patch(self.ENDPOINT(99999))
+        self.assertEqual(resp.status_code, 404)
+
+    def test_fail_forbidden(self):
+        resp = self.user1c.patch(self.ENDPOINT(3))
+        self.assertEqual(resp.status_code, 403)
+
+    def test_fail_completed_status(self):
+        # already completed
+        resp = self.user4c.patch(self.ENDPOINT(6))
+        self.assertEqual(resp.status_code, 400)
+
+    def test_success_1(self):
+        # TODO - do this with 'CANCEL' status issue #24
+        pass
+
+    def test_success_2(self):
+        # TODO - do this with 'CANCEL' status issue #24
+        pass

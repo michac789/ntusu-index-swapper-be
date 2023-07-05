@@ -24,7 +24,7 @@ If a pair is not found, you will be placed under waiting list.<br>
     return send_email(SUBJECT, CONTENT, [user.email])
 
 
-def send_swap_search_another(user, swap_request: SwapRequest):
+def send_swap_search_another(user: User, swap_request: SwapRequest):
     SUBJECT = 'Index Swapper - Search Another Pair Confirmation'
     CONTENT = f'''
 Hi, {user.username}!<br>
@@ -37,7 +37,7 @@ ID: {swap_request.id}<br>
 Your Contact Information: {swap_request.contact_info}<br>
 Course: {swap_request.current_index.name} ({swap_request.current_index.code})<br>
 Current Index: {swap_request.current_index}<br>
-Wanted Indexes: {', '.join(swap_request.wanted_indexes)}<br>
+Wanted Indexes: {', '.join(swap_request.get_wanted_indexes)}<br>
 <br>
 An algorithm is currently searching for a pair for you.
 You will be contacted shortly through this email if a pair is found.
@@ -47,7 +47,7 @@ If a pair is not found, you will be placed under waiting list.<br>
     return send_email(SUBJECT, CONTENT, [user.email])
 
 
-def send_swap_completed(user, swap_request: SwapRequest):
+def send_swap_completed(user: User, swap_request: SwapRequest):
     SUBJECT = 'Index Swapper - Completed'
     CONTENT = f'''
 Hi, {user.username}!<br>
@@ -67,7 +67,7 @@ ID: {swap_request.id}<br>
 Your Contact Information: {swap_request.contact_info}<br>
 Course: {swap_request.current_index.name} ({swap_request.current_index.index})<br>
 Current Index: {swap_request.current_index}<br>
-Wanted Indexes: {', '.join(swap_request.wanted_indexes)}<br>
+Wanted Indexes: {', '.join(swap_request.get_wanted_indexes)}<br>
 <br>
 We apologize if you cancel this due to long waiting time, or no pair is found.<br>
 {DO_NOT_REPLY_MESSAGE}
@@ -85,7 +85,7 @@ ID: {swap_request.id}<br>
 Your Contact Information: {swap_request.contact_info}<br>
 Course: {swap_request.current_index.index} ({swap_request.current_index.code})<br>
 Current Index: {swap_request.current_index}<br>
-Wanted Indexes: {', '.join(swap_request.wanted_indexes)}<br>
+Wanted Indexes: {', '.join(swap_request.get_wanted_indexes)}<br>
 <br>
 We apologize if you cancel this due to long waiting time, or no pair is found.<br>
 {DO_NOT_REPLY_MESSAGE}
