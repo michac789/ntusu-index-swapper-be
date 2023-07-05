@@ -2,6 +2,60 @@ from drf_yasg import openapi
 
 
 API_DESCRIPTIONS = {
+    'courseindex_list': '''
+        TODO - add docs later :)
+    ''',
+    'courseindex_retrieve': '''
+        TODO - add docs later :)
+    ''',
+    'courseindex_get_courses': '''
+        Get all unique courses code and name (not index!) from all CourseIndex instances.
+        All query parameters (pagination / filter / sort) from courseindex_list api are also available here.
+
+        Sample Output:
+        ```
+        {
+            "count": 2,
+            "total_pages": 1,
+            "results": [
+                {
+                    "code": "MH1100",
+                    "name": "CALCULUS I"
+                },
+                {
+                    "code": "MH1200",
+                    "name": "LINEAR ALGEBRA I"
+                }
+            ]
+        }
+        ```
+    ''',
+    'courseindex_get_indexes': '''
+        Given a course code (e.g., MH1100), simply return all indexes of that course.
+        No pagination / filter / sort feature is implemented here.
+
+        Sample Output:
+        ```
+        [
+            {
+                "index": "70181",
+                "information": [
+                    {
+                        "type": "LEC/STUDIO",
+                        "group": "LE",
+                        "day": "THU",
+                        "time": "0930-1020",
+                        "venue": "LT27",
+                        "remark": ""
+                    },
+                    ...
+                ].
+                "pending_count": 1,
+            },
+            ...
+        ]
+        ```
+    ''',
     'swaprequest_create': '''
         What this endpoint does:
         - Create new SwapRequest instance
@@ -54,21 +108,39 @@ API_DESCRIPTIONS = {
         ```
         [
             {
-                "id": 10,
-                "datetime_added": "2023-06-24 11:01:59",
+                "id": 1,
+                "datetime_added": "2023-07-02 07:29:49",
                 "datetime_found": null,
                 "wanted_indexes": [
+                    "70182",
                     "70183",
                     "70184"
                 ],
                 "current_index": "70181",
-                "contact_info": "contact telegram @sampletelegram",
-                "status": "S",
-                "user": 1
+                "contact_info": "@user1zzz",
+                "contact_type": "T",
+                "status": "W",
+                "index_gained": "70184",
+                "user": 2,
+                "pair": 3
             },
             ...
         ]
         ```
+    ''',
+    'swaprequest_update': '''
+        What this endpoint does:
+        - Edit only the `contact_info` and `contact_type` of a SwapRequest instance
+        
+        It is used in this scenario:
+        - User wants to update contact information when SwapRequest status is 'S' (searching) or 'W' (waiting)
+
+        Return output:
+        - Return 401 if user is not logged in
+        - Return 404 if SwapRequest instance with this id does not exist
+        - Return 403 if SwapRequest instance is not created by this user
+        - Return 400 if SwapRequest instance status is not 'W' (waiting) or 'S' (searching)
+        - Return 200 if successful, along with newly updated data
     ''',
     'swaprequest_search_another': '''
         What this endpoint does:
@@ -77,9 +149,9 @@ API_DESCRIPTIONS = {
 
         It is used in this scenario:
         - Current SwapRequest status is 'W' (waiting), means that a pair is found,
-        but the pair can't be contacted or the pair does not want to swap anymore
+        but the pair can't be contacted or has other objection that the swap failed
         - User still wants to search another pair, so this endpoint is called
-        - Note that there is a cooldown for 24 hours before you can search another pair again
+        - Note that there is a cooldown for 24 hours (adjustable) before you can search another pair again
     
         Return output:
         - Return 401 if user is not logged in
@@ -98,7 +170,6 @@ API_DESCRIPTIONS = {
         - Current SwapRequest status is 'W' (waiting), means that a pair is found,
         and the swap has been successfully performed so the user mark it as completed
         *(marking as completed won't affect the status of the pair)
-        - I am still considering whether this is necessary, I see no incentive for people to do this
     
         Return output:
         - Return 401 if user is not logged in
@@ -109,14 +180,19 @@ API_DESCRIPTIONS = {
     ''',
     'swaprequest_cancel_swap': '''
         What this endpoint does:
-        - Cancel a SwapRequest instance
+        - Cancel a SwapRequest (change the status to 'R' (revoked))
+        - If pair is already found, automatically call search algorithm for the pair
 
         It is used in this scenario:
         - Current SwapRequest status is 'W' (waiting) or 'S' (searching),
-        and for some rea
+        and for some reason the user does not want to swap again
 
-        TODO...
-        TODO - consider editing swap request while status is searching (?)
+        Return output:
+        - Return 401 if user is not logged in
+        - Return 404 if SwapRequest instance with this id does not exist
+        - Return 403 if SwapRequest instance is not created by this user
+        - Return 400 if SwapRequest instance status is not 'W' (waiting) or 'S' (searching)
+        - Return 200 if successful
     ''',
 }
 
