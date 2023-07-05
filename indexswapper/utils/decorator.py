@@ -1,7 +1,9 @@
 from datetime import timedelta
+from functools import wraps
+from django.db import transaction
+from django.db.models import Model, QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone as tz
-from functools import wraps
 from rest_framework import status
 from rest_framework.response import Response
 from indexswapper.models import SwapRequest
@@ -52,5 +54,26 @@ def verify_cooldown(COOLDOWN_HOURS=24):
                     'time_left': (dt_found + timedelta(hours=COOLDOWN_HOURS) - tz.now()) / 60
                 }, status=status.HTTP_400_BAD_REQUEST)
             return func(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def lock_db_table(Entity: Model, id: int = 0):
+    '''
+        Decorator to wrap function under an atomic transaction and locks the database.
+        If id is 0, it will lock the entire 'Entity' table.
+        Otherwise, it will just lock the row with the given id of the 'Entity' table.
+    '''
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            with transaction.atomic():
+                if id == 0:
+                    qs = Entity.objects.all().select_for_update()
+                else:
+                    qs = Entity.objects.filter(
+                        id=id).select_for_update()
+                kwargs['qs']: QuerySet = qs
+                return func(*args, **kwargs)
         return wrapper
     return decorator

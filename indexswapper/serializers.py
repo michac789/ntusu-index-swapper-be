@@ -4,6 +4,7 @@ from django.core.validators import MinLengthValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from indexswapper.models import CourseIndex, SwapRequest
+from indexswapper.utils.decorator import lock_db_table
 from indexswapper.utils.scraper import populate_modules
 from indexswapper.utils.validation import ConflictValidationError
 
@@ -79,10 +80,12 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
             index=validated_data['current_index_num'])
         del validated_data['current_index_num']
         for index in validated_data['wanted_indexes']:
-            course_index = CourseIndex.objects.get(index=index)
-            course_index.pending_count += 1
-            course_index.save()
-            # TODO - implement transaction to prevent clash
+            @lock_db_table(CourseIndex, CourseIndex.objects.get(index=index).id)
+            def increment_pending_count(*args, **kwargs):
+                course_index = kwargs['qs'].first()
+                course_index.pending_count += 1
+                course_index.save()
+            increment_pending_count()
         return super().create(validated_data)
 
     def validate(self, data):

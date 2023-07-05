@@ -1,11 +1,12 @@
 from django.utils import timezone as tz
+from indexswapper.utils.decorator import lock_db_table
 from indexswapper.models import CourseIndex, SwapRequest
 
 
-def perform_pairing(swap_request_id: int):
+@lock_db_table(SwapRequest)
+def perform_pairing(swap_request_id: int, *args, **kwargs):
     '''
     ### IMPORTANT WARNING !!! ###
-    TODO - lock db using transaction to prevent clashes
     TLDR; this function should only be called one at a time,
     even if db accept multiple connection & server has multiple threads / instances
     If this function is called multiple times at the same time,
@@ -22,7 +23,7 @@ def perform_pairing(swap_request_id: int):
     TODO - make one more status: CANCELLED
 
     Pseudocode:
-    - Make this SwapRequest status to SEARCHING (it may be 'WAITING'), reset some values
+    - Make this SwapRequest status to SEARCHING (it may be 'WAITING'), reset some other values
     - Filter all swap request that has status of waiting, has the same course code,
         and exclude this swap request
     - For each instance of the filtered swap request:
@@ -57,7 +58,6 @@ def perform_pairing(swap_request_id: int):
             instance.datetime_found = found_time
             swap_request.save()
             instance.save()
-            # TODO - implement transaction to prevent clash
             for i in [swap_request, instance]:
                 for index in i.get_wanted_indexes:
                     course_index = CourseIndex.objects.get(index=index)
