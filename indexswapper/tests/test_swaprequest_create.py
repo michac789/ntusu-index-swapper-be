@@ -96,10 +96,14 @@ class SwapRequestCreateTestCase(IndexSwapperBaseTestCase):
         self.assertIn('id', resp_json)
         self.assertEqual(resp_json['contact_info'],
                          'sample_mail@mail.com')
+        self.assertEqual(resp_json['contact_type'], 'E')
         self.assertEqual(resp_json['course_code'], 'MH1100')
         self.assertEqual(resp_json['course_name'], 'CALCULUS I')
         self.assertEqual(resp_json['current_index'], '70181')
         self.assertEqual(resp_json['wanted_indexes'], ['70185', '70186'])
+        self.assertEqual(list(resp_json.keys()), [
+                         'contact_info', 'contact_type', 'wanted_indexes',
+                         'course_code', 'course_name', 'current_index', 'id'])
 
 
 class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):

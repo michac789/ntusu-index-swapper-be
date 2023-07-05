@@ -63,6 +63,7 @@ def perform_pairing(swap_request_id: int):
                     course_index = CourseIndex.objects.get(index=index)
                     course_index.pending_count -= 1
                     course_index.save()
+            # TODO - send email to both users when a pair is found!
             return True
     swap_request.save()
     return False

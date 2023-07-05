@@ -49,7 +49,7 @@ def verify_cooldown(COOLDOWN_HOURS=24):
             if dt_found and tz.now() < dt_found + timedelta(hours=COOLDOWN_HOURS):
                 return Response({
                     'error': 'waiting for cooldown',
-                    'time_left': -tz.now() + dt_found + COOLDOWN_HOURS
+                    'time_left': (dt_found + timedelta(hours=COOLDOWN_HOURS) - tz.now()) / 60
                 }, status=status.HTTP_400_BAD_REQUEST)
             return func(request, *args, **kwargs)
         return wrapper
