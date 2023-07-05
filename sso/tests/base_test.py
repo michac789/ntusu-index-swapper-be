@@ -16,17 +16,17 @@ class BaseAPITestCase(APITestCase):
     '''
     @classmethod
     def setUpTestData(self):
-        self.user1 = User.objects.create_superuser(
+        self.user1x = User.objects.create_superuser(
             username='user1x',
             password='123',
             email='user1x@mail.com',
         )
-        self.user2 = User.objects.create_user(
+        self.user2x = User.objects.create_user(
             username='user2x',
             password='456',
             email='user2x@mail.com',
         )
-        self.user3 = User.objects.create_user(
+        self.user3x = User.objects.create_user(
             username='user3x',
             password='789',
             email='user3x@mail.com'

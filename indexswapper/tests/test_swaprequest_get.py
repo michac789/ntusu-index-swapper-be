@@ -34,7 +34,7 @@ class SwapRequestGetTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json[1]['current_index'], '70221')
         self.assertEqual(resp_json[1]['status'], 'S')
 
-    def test_success_qp(self):
+    def test_success_qp_1(self):
         resp = self.user1c.get(self.ENDPOINT, {
             'status': 'W'
         })
@@ -42,3 +42,27 @@ class SwapRequestGetTestCase(IndexSwapperBaseTestCase):
         resp_json = loads(resp.content.decode('utf-8'))
         self.assertEqual(len(resp_json), 1)
         self.assertEqual(resp_json[0]['status'], 'W')
+
+    def test_success_qp_1(self):
+        resp = self.user1c.get(self.ENDPOINT, {
+            'status': 'W'
+        })
+        self.assertEqual(resp.status_code, 200)
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(len(resp_json), 1)
+        self.assertEqual(resp_json[0]['status'], 'W')
+
+    def test_success_qp_2(self):
+        resp = self.user4c.get(self.ENDPOINT, {
+            'status': 'S'
+        })
+        self.assertEqual(resp.status_code, 200)
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(len(resp_json), 0)
+        resp = self.user4c.get(self.ENDPOINT, {
+            'status': 'C'
+        })
+        self.assertEqual(resp.status_code, 200)
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(len(resp_json), 1)
+        self.assertEqual(resp_json[0]['status'], 'C')
