@@ -1,5 +1,11 @@
-from rest_framework import generics
+from datetime import timedelta as td
+from django.contrib.auth import password_validation, hashers
+from django.core.exceptions import ValidationError
+from django.utils import timezone as tz
+from django.utils.crypto import get_random_string
+from rest_framework import generics, status
 from rest_framework.generics import CreateAPIView, get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
@@ -7,11 +13,14 @@ from NTUSU_BE.utils import send_email
 from sso.models import User
 from sso.permissions import IsSelfOrReadOnly, IsSuperUser
 from sso.serializers import (
+    EmailSerializer,
     EmailTestSerializer,
+    PasswordResetSerializer,
     TokenSerializer,
     UserCreateSerializer,
     UserProfileSerializer,
 )
+from sso.utils import send_reset_token
 
 
 class EmailTestView(CreateAPIView):
@@ -50,3 +59,23 @@ class UserVerifyView(APIView):
         user.is_active = True
         user.save()
         return Response({'status': 'account activated', })
+
+
+class ChangePasswordView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        current_password = request.data.get('current_password', '')
+        new_password = request.data.get('new_password', '')
+        user = User.objects.get(username=request.user.username)
+        try:
+            valid = user.check_password(current_password)
+            if not valid:
+                raise ValidationError('password does not match current')
+            password_validation.validate_password(new_password, user)
+        except ValidationError as errors:
+            return Response({'errors': errors, }, status=400)
+        user.set_password(new_password)
+        user.save()
+        return Response({'status': 'password changed', })
