@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
-from sso.views import EmailTestView
+from sso import views
 
 
 app_name = 'sso'
@@ -12,5 +12,9 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token-verify'),
-    path('email-test/', EmailTestView.as_view(), name='email-test'),
+    path('email-test/', views.EmailTestView.as_view(), name='email-test'),
+
+    path('register/', views.UserRegisterView.as_view(), name='register'),
+    path('user/<str:username>/', views.UserProfileView.as_view(), name='user'),
+    path('verify/', views.UserVerifyView.as_view(), name='verify'),
 ]

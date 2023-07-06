@@ -15,8 +15,9 @@
         "model": "sso.user",
         "pk": 2,
         "fields": {
-            "username": "user1",
-            "email": "user1@mail.com",
+            "display_name": "user1x display",
+            "username": "user1x",
+            "email": "user1x@e.ntu.edu.sg",
             "password": "pbkdf2_sha256$390000$jNGuKW2q0YnDal94Qqv9c3$xtLogB9SNuXhZVYnu1hatPzydj2m/MF2OtYT6LIbGFU="
         }
     },
@@ -24,8 +25,9 @@
         "model": "sso.user",
         "pk": 3,
         "fields": {
-            "username": "user2",
-            "email": "user2@mail.com",
+            "display_name": "user2x display",
+            "username": "user2x",
+            "email": "user2x@e.ntu.edu.sg",
             "password": "pbkdf2_sha256$390000$jNGuKW2q0YnDal94Qqv9c3$xtLogB9SNuXhZVYnu1hatPzydj2m/MF2OtYT6LIbGFU="
         }
     },
@@ -33,8 +35,9 @@
         "model": "sso.user",
         "pk": 4,
         "fields": {
-            "username": "user3",
-            "email": "user3@mail.com",
+            "display_name": "user3x display",
+            "username": "user3x",
+            "email": "user3x@e.ntu.edu.sg",
             "password": "pbkdf2_sha256$390000$jNGuKW2q0YnDal94Qqv9c3$xtLogB9SNuXhZVYnu1hatPzydj2m/MF2OtYT6LIbGFU="
         }
     },
@@ -42,8 +45,9 @@
         "model": "sso.user",
         "pk": 5,
         "fields": {
-            "username": "user4",
-            "email": "user4@mail.com",
+            "display_name": "user4x display",
+            "username": "user4x",
+            "email": "user4x@e.ntu.edu.sg",
             "password": "pbkdf2_sha256$390000$jNGuKW2q0YnDal94Qqv9c3$xtLogB9SNuXhZVYnu1hatPzydj2m/MF2OtYT6LIbGFU="
         }
     },
@@ -51,8 +55,9 @@
         "model": "sso.user",
         "pk": 6,
         "fields": {
-            "username": "user5",
-            "email": "user5@mail.com",
+            "display_name": "user5x display",
+            "username": "user5x",
+            "email": "user5x@e.ntu.edu.sg",
             "password": "pbkdf2_sha256$390000$jNGuKW2q0YnDal94Qqv9c3$xtLogB9SNuXhZVYnu1hatPzydj2m/MF2OtYT6LIbGFU="
         }
     }
