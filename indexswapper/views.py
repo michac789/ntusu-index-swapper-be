@@ -116,6 +116,9 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     @verify_cooldown()
     def search_another(self, request, *args, **kwargs):
         perform_pairing(kwargs['instance'].id)
+        pair_swaprequest = kwargs['instance'].pair
+        pair_swaprequest.status = SwapRequest.Status.REVOKED
+        pair_swaprequest.save()
         email.send_swap_search_another(request.user, kwargs['instance'])
         return Response('ok')
 
@@ -125,6 +128,8 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     def mark_complete(self, request, *args, **kwargs):
         kwargs['instance'].status = SwapRequest.Status.COMPLETED
         kwargs['instance'].save()
+        kwargs['instance'].pair.status = SwapRequest.Status.COMPLETED
+        kwargs['instance'].pair.save()
         email.send_swap_completed(request.user, kwargs['instance'])
         return Response('ok')
 
@@ -132,12 +137,11 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     @action(methods=['patch'], detail=True)
     @get_swap_request_with_id_verify(SwapRequest.Status.WAITING, SwapRequest.Status.SEARCHING)
     def cancel_swap(self, request, *args, **kwargs):
-        if kwargs['instance'].status == SwapRequest.Status.SEARCHING:
-            kwargs['instance'].delete()
-        elif kwargs['instance'].status == SwapRequest.Status.WAITING:
-            perform_pairing(kwargs['instance'].id)
+        current_status = kwargs['instance'].status
+        kwargs['instance'].status = SwapRequest.Status.REVOKED
+        kwargs['instance'].save()
+        if current_status == SwapRequest.Status.WAITING:
+            perform_pairing(kwargs['instance'].pair.id)
             email.send_swap_cancel_pair(request.user, kwargs['instance'])
-        else:
-            return Response('Cannot cancel completed request.', status=status.HTTP_400_BAD_REQUEST)
         email.send_swap_cancel_self(request.user, kwargs['instance'])
         return Response('ok')

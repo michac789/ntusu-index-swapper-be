@@ -79,7 +79,7 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(instance.datetime_found, instance.pair.datetime_found)
         old_pair = SwapRequest.objects.get(id=old_pair_id)
         self.assertEqual(old_pair.pair.id, SWAPREQUEST_ID)
-        self.assertEqual(old_pair.status, SwapRequest.Status.WAITING)
+        self.assertEqual(old_pair.status, SwapRequest.Status.REVOKED)
 
     def test_success_pair_not_found(self):
         SWAPREQUEST_ID = 1
@@ -97,7 +97,7 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         self.assertIsNotNone(instance.datetime_added)
         old_pair = SwapRequest.objects.get(id=old_pair_id)
         self.assertEqual(old_pair.pair.id, SWAPREQUEST_ID)
-        self.assertEqual(old_pair.status, SwapRequest.Status.WAITING)
+        self.assertEqual(old_pair.status, SwapRequest.Status.REVOKED)
 
 
 class SwapRequestMarkCompleteTestCase(IndexSwapperBaseTestCase):
@@ -132,10 +132,14 @@ class SwapRequestMarkCompleteTestCase(IndexSwapperBaseTestCase):
         swap_request = SwapRequest.objects.get(id=1)
         self.assertEqual(swap_request.status, SwapRequest.Status.COMPLETED)
         mock_func.assert_called_once()
+        pair_swap_request = swap_request.pair
+        self.assertEqual(pair_swap_request.status,
+                         SwapRequest.Status.COMPLETED)
 
 
 class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = (lambda _, id: f'/indexswapper/swaprequest/{id}/cancel_swap/')
+    CREATE_ENDPOINT = '/indexswapper/swaprequest/'
 
     def test_fail_unauthorized(self):
         resp = self.client3.patch(self.ENDPOINT(1))
@@ -154,10 +158,49 @@ class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
         resp = self.user4c.patch(self.ENDPOINT(6))
         self.assertEqual(resp.status_code, 400)
 
-    def test_success_1(self):
-        # TODO - do this with 'CANCEL' status issue #24
-        pass
+    def test_success_status_waiting_1(self):
+        resp = self.user1c.patch(self.ENDPOINT(1))
+        self.assertEqual(resp.status_code, 200)
+        swap_request = SwapRequest.objects.get(id=1)
+        self.assertEqual(swap_request.status, SwapRequest.Status.REVOKED)
+        self.assertEqual(swap_request.index_gained, '70184')
+        self.assertIsNotNone(swap_request.datetime_found)
+        self.assertEqual(swap_request.pair.status,
+                         SwapRequest.Status.SEARCHING)
+        self.assertEqual(swap_request.pair.id, 3)
+        self.assertEqual(swap_request.pair.index_gained, '')
+        self.assertIsNone(swap_request.pair.pair)
+        self.assertIsNone(swap_request.pair.datetime_found)
 
-    def test_success_2(self):
-        # TODO - do this with 'CANCEL' status issue #24
-        pass
+    def test_success_status_waiting_2(self):
+        # pair found match after researching
+        new_sr_resp = self.client1.post(self.CREATE_ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': '70185',
+            'wanted_indexes': ['70181', '70184'],
+        })
+        new_sr_resp_json = loads(new_sr_resp.content.decode('utf-8'))
+        resp = self.user1c.patch(self.ENDPOINT(1))
+        self.assertEqual(resp.status_code, 200)
+        swap_request = SwapRequest.objects.get(id=1)
+        self.assertEqual(swap_request.status, SwapRequest.Status.REVOKED)
+        self.assertEqual(swap_request.index_gained, '70184')
+        self.assertIsNotNone(swap_request.datetime_found)
+        self.assertEqual(swap_request.pair.status,
+                         SwapRequest.Status.WAITING)
+        self.assertEqual(swap_request.pair.pair.id, new_sr_resp_json['id'])
+        self.assertEqual(swap_request.pair.index_gained, '70185')
+        self.assertIsNotNone(swap_request.pair.pair)
+        self.assertIsNotNone(swap_request.pair.datetime_found)
+        instance = SwapRequest.objects.get(id=new_sr_resp_json['id'])
+        self.assertEqual(instance.status, SwapRequest.Status.WAITING)
+        self.assertEqual(instance.pair, swap_request.pair)
+        self.assertEqual(instance.index_gained, '70184')
+
+    def test_success_status_searching(self):
+        resp = self.user1c.patch(self.ENDPOINT(2))
+        self.assertEqual(resp.status_code, 200)
+        swap_request = SwapRequest.objects.get(id=2)
+        self.assertEqual(swap_request.status, SwapRequest.Status.REVOKED)
+        self.assertIsNone(swap_request.pair)
