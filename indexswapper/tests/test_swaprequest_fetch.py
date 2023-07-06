@@ -53,7 +53,8 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         self.assertGreater(float(resp_json_2['time_left']), 0)
         self.assertEqual(list(resp_json_2.keys()), ['error', 'time_left'])
 
-    def test_success_pair_found(self):
+    @patch('indexswapper.utils.email.send_swap_search_another')
+    def test_success_pair_found(self, mock_func):
         SWAPREQUEST_ID = 1
         instance = SwapRequest.objects.get(id=SWAPREQUEST_ID)
         old_pair_id = instance.pair.id
@@ -80,8 +81,10 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         old_pair = SwapRequest.objects.get(id=old_pair_id)
         self.assertEqual(old_pair.pair.id, SWAPREQUEST_ID)
         self.assertEqual(old_pair.status, SwapRequest.Status.REVOKED)
+        mock_func.assert_called_once()
 
-    def test_success_pair_not_found(self):
+    @patch('indexswapper.utils.email.send_swap_search_another')
+    def test_success_pair_not_found(self, mock_func):
         SWAPREQUEST_ID = 1
         instance = SwapRequest.objects.get(id=SWAPREQUEST_ID)
         old_pair_id = instance.pair.id
@@ -98,6 +101,7 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         old_pair = SwapRequest.objects.get(id=old_pair_id)
         self.assertEqual(old_pair.pair.id, SWAPREQUEST_ID)
         self.assertEqual(old_pair.status, SwapRequest.Status.REVOKED)
+        mock_func.assert_called_once()
 
 
 class SwapRequestMarkCompleteTestCase(IndexSwapperBaseTestCase):
@@ -131,10 +135,10 @@ class SwapRequestMarkCompleteTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp.status_code, 200)
         swap_request = SwapRequest.objects.get(id=1)
         self.assertEqual(swap_request.status, SwapRequest.Status.COMPLETED)
-        mock_func.assert_called_once()
         pair_swap_request = swap_request.pair
         self.assertEqual(pair_swap_request.status,
                          SwapRequest.Status.COMPLETED)
+        mock_func.assert_called_once()
 
 
 class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
@@ -158,7 +162,9 @@ class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
         resp = self.user4c.patch(self.ENDPOINT(6))
         self.assertEqual(resp.status_code, 400)
 
-    def test_success_status_waiting_1(self):
+    @patch('indexswapper.utils.email.send_swap_cancel_self')
+    @patch('indexswapper.utils.email.send_swap_cancel_pair')
+    def test_success_status_waiting_1(self, mock_func1, mock_func2):
         resp = self.user1c.patch(self.ENDPOINT(1))
         self.assertEqual(resp.status_code, 200)
         swap_request = SwapRequest.objects.get(id=1)
@@ -171,8 +177,12 @@ class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(swap_request.pair.index_gained, '')
         self.assertIsNone(swap_request.pair.pair)
         self.assertIsNone(swap_request.pair.datetime_found)
+        mock_func1.assert_called_once()
+        mock_func2.assert_called_once()
 
-    def test_success_status_waiting_2(self):
+    @patch('indexswapper.utils.email.send_swap_cancel_self')
+    @patch('indexswapper.utils.email.send_swap_cancel_pair')
+    def test_success_status_waiting_2(self, mock_func1, mock_func2):
         # pair found match after researching
         new_sr_resp = self.client1.post(self.CREATE_ENDPOINT, {
             'contact_info': 'sample_mail@mail.com',
@@ -197,10 +207,14 @@ class SwapRequestCancelSwapTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(instance.status, SwapRequest.Status.WAITING)
         self.assertEqual(instance.pair, swap_request.pair)
         self.assertEqual(instance.index_gained, '70184')
+        mock_func1.assert_called_once()
+        mock_func2.assert_called_once()
 
-    def test_success_status_searching(self):
+    @patch('indexswapper.utils.email.send_swap_cancel_self')
+    def test_success_status_searching(self, mock_func):
         resp = self.user1c.patch(self.ENDPOINT(2))
         self.assertEqual(resp.status_code, 200)
         swap_request = SwapRequest.objects.get(id=2)
         self.assertEqual(swap_request.status, SwapRequest.Status.REVOKED)
         self.assertIsNone(swap_request.pair)
+        mock_func.assert_called_once()

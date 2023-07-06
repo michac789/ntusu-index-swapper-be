@@ -20,7 +20,6 @@ def perform_pairing(swap_request_id: int, *args, **kwargs):
     - when a pair has been matched, swap unsuccessful after cooldown,
         and one side reinitiate the search
         (call with this user's swap request id, no need to do for the other side)
-    TODO - make one more status: CANCELLED
 
     Pseudocode:
     - Make this SwapRequest status to SEARCHING (it may be 'WAITING'), reset some other values
@@ -47,6 +46,7 @@ def perform_pairing(swap_request_id: int, *args, **kwargs):
     for instance in instances:
         if instance.current_index.index in swap_request.get_wanted_indexes and\
                 swap_request.current_index.index in instance.get_wanted_indexes:
+            # a pair is found
             swap_request.status = SwapRequest.Status.WAITING
             instance.status = SwapRequest.Status.WAITING
             swap_request.pair = instance

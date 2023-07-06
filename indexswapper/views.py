@@ -84,8 +84,8 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         serializer = SwapRequestCreateSerializer(
             data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        email.send_swap_request_creation(request.user, serializer.data)
+        instance = serializer.save(user=request.user)
+        email.send_swap_request_creation(instance)
         pair_result = perform_pairing(serializer.data['id'])
         return Response({**serializer.data, 'is_pair_success': pair_result},
                         status=status.HTTP_201_CREATED)
@@ -120,7 +120,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         pair_swaprequest = kwargs['instance'].pair
         pair_swaprequest.status = SwapRequest.Status.REVOKED
         pair_swaprequest.save()
-        email.send_swap_search_another(request.user, kwargs['instance'])
+        email.send_swap_search_another(kwargs['instance'])
         return Response({'is_pair_success': pair_result})
 
     @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_mark_complete'])
@@ -131,7 +131,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         kwargs['instance'].save()
         kwargs['instance'].pair.status = SwapRequest.Status.COMPLETED
         kwargs['instance'].pair.save()
-        email.send_swap_completed(request.user, kwargs['instance'])
+        email.send_swap_completed(kwargs['instance'])
         return Response('ok')
 
     @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_cancel_swap'])
@@ -143,6 +143,7 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         kwargs['instance'].save()
         if current_status == SwapRequest.Status.WAITING:
             perform_pairing(kwargs['instance'].pair.id)
-            email.send_swap_cancel_pair(request.user, kwargs['instance'])
-        email.send_swap_cancel_self(request.user, kwargs['instance'])
+            email.send_swap_cancel_pair(kwargs['instance'].pair)
+        email.send_swap_cancel_self(
+            kwargs['instance'], current_status == SwapRequest.Status.WAITING)
         return Response('ok')
