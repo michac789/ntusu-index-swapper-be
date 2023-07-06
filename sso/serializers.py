@@ -1,6 +1,8 @@
-from rest_framework import serializers
 from django.contrib.auth import password_validation, hashers
+from django.utils import timezone as tz
 from django.utils.crypto import get_random_string
+from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 from sso.models import User
 from sso.utils import send_activation_token
 
@@ -56,3 +58,17 @@ class TokenSerializer(serializers.Serializer):
 
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=20)
+    password = serializers.CharField(
+        write_only=True, style={'input_type': 'password'}
+    )
+
+    def validate(self, attrs):
+        user = get_object_or_404(User, custom_token=attrs['token'])
+        if tz.now() > user.token_expiry_date:
+            raise serializers.ValidationError('token already used')
+        password_validation.validate_password(attrs['password'], user)
+        return super().validate(attrs)
