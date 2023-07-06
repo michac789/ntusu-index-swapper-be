@@ -1,8 +1,6 @@
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 from django.contrib.auth import password_validation, hashers
 from django.utils.crypto import get_random_string
-from django.utils import timezone as tz
 from sso.models import User
 from sso.utils import send_activation_token
 

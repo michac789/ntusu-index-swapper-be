@@ -1,9 +1,9 @@
 from datetime import timedelta as td
-from django.contrib.auth import password_validation, hashers
+from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from django.utils import timezone as tz
 from django.utils.crypto import get_random_string
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,7 +15,6 @@ from sso.permissions import IsSelfOrReadOnly, IsSuperUser
 from sso.serializers import (
     EmailSerializer,
     EmailTestSerializer,
-    PasswordResetSerializer,
     TokenSerializer,
     UserCreateSerializer,
     UserProfileSerializer,
@@ -79,3 +78,18 @@ class ChangePasswordView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({'status': 'password changed', })
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        serializer = EmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email'].lower()
+        user = get_object_or_404(User, email=email)
+        if not user.custom_token or not user.token_expiry_date or\
+                user.token_expiry_date > tz.now():
+            user.custom_token = get_random_string(20)
+        user.token_expiry_date = tz.now() + td(days=1)
+        user.save()
+        send_reset_token(user.email, user.custom_token, user.username)
+        return Response({'status': 'ok', })
