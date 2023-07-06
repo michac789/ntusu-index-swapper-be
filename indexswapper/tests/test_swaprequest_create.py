@@ -101,9 +101,10 @@ class SwapRequestCreateTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json['course_name'], 'CALCULUS I')
         self.assertEqual(resp_json['current_index'], '70181')
         self.assertEqual(resp_json['wanted_indexes'], ['70185', '70186'])
+        self.assertEqual(resp_json['is_pair_success'], False)
         self.assertEqual(list(resp_json.keys()), [
                          'contact_info', 'contact_type', 'wanted_indexes',
-                         'course_code', 'course_name', 'current_index', 'id'])
+                         'course_code', 'course_name', 'current_index', 'id', 'is_pair_success'])
 
 
 class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
@@ -117,6 +118,7 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70219', '70221'],
         })
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['is_pair_success'], True)
         swaprequest_id = resp_json['id']
         instance = SwapRequest.objects.get(id=swaprequest_id)
         self.assertEqual(resp.status_code, 201)
@@ -138,6 +140,7 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70195', '70201', '70205'],
         })
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['is_pair_success'], True)
         swaprequest_id = resp_json['id']
         instance = SwapRequest.objects.get(id=swaprequest_id)
         self.assertEqual(resp.status_code, 201)
@@ -159,6 +162,7 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70219'],
         })
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['is_pair_success'], False)
         swaprequest_id = resp_json['id']
         instance = SwapRequest.objects.get(id=swaprequest_id)
         self.assertEqual(resp.status_code, 201)
@@ -176,6 +180,7 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70195', '70201', '70205'],
         })
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['is_pair_success'], False)
         swaprequest_id = resp_json['id']
         instance = SwapRequest.objects.get(id=swaprequest_id)
         self.assertEqual(resp.status_code, 201)
@@ -194,6 +199,7 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70181'],
         })
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['is_pair_success'], False)
         swaprequest_id = resp_json['id']
         instance = SwapRequest.objects.get(id=swaprequest_id)
         self.assertEqual(resp.status_code, 201)
@@ -212,6 +218,7 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70211', '70212'],
         })
         resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['is_pair_success'], False)
         swaprequest_id = resp_json['id']
         instance = SwapRequest.objects.get(id=swaprequest_id)
         self.assertEqual(resp.status_code, 201)

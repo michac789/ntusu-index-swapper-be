@@ -128,6 +128,9 @@ class SwapRequestListSerializer(serializers.ModelSerializer):
     datetime_found = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     wanted_indexes = serializers.SerializerMethodField()
     current_index = serializers.SerializerMethodField()
+    course_code = serializers.SerializerMethodField()
+    pair_contact_info = serializers.SerializerMethodField()
+    pair_contact_type = serializers.SerializerMethodField()
 
     class Meta:
         model = SwapRequest
@@ -141,6 +144,19 @@ class SwapRequestListSerializer(serializers.ModelSerializer):
 
     def get_current_index(self, obj):
         return obj.current_index.index
+
+    def get_course_code(self, obj):
+        return obj.current_index.code
+
+    def get_pair_contact_info(self, obj):
+        if obj.pair:
+            return obj.pair.contact_info
+        return None
+
+    def get_pair_contact_type(self, obj):
+        if obj.pair:
+            return obj.pair.contact_type
+        return None
 
 
 class SwapRequestEditSerializer(serializers.ModelSerializer):

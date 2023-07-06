@@ -42,6 +42,7 @@ class SwapRequest(models.Model):
         SEARCHING = 'S', 'Searching'
         WAITING = 'W', 'Waiting'
         COMPLETED = 'C', 'Completed'
+        REVOKED = 'R', 'Revoked'
 
     class ContactType(models.TextChoices):
         EMAIL = 'E', 'Email'
@@ -82,5 +83,5 @@ class SwapRequest(models.Model):
         validator(self.wanted_indexes)
 
     def __str__(self):
-        return f'''<Swap Request by '{self.user.username}': \
+        return f'''<Swap Request #{self.id} by '{self.user.username}': \
 {self.current_index.code} ({self.current_index.index} to {self.wanted_indexes})>'''
