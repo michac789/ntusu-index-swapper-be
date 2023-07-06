@@ -86,8 +86,9 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
         email.send_swap_request_creation(request.user, serializer.data)
-        perform_pairing(serializer.data['id'])
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        pair_result = perform_pairing(serializer.data['id'])
+        return Response({**serializer.data, 'is_pair_success': pair_result},
+                        status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         manual_parameters=[swaprequest_qp],
@@ -115,12 +116,12 @@ class SwapRequestViewSet(SwapRequestQueryParamsMixin,
     @get_swap_request_with_id_verify(SwapRequest.Status.WAITING)
     @verify_cooldown()
     def search_another(self, request, *args, **kwargs):
-        perform_pairing(kwargs['instance'].id)
+        pair_result = perform_pairing(kwargs['instance'].id)
         pair_swaprequest = kwargs['instance'].pair
         pair_swaprequest.status = SwapRequest.Status.REVOKED
         pair_swaprequest.save()
         email.send_swap_search_another(request.user, kwargs['instance'])
-        return Response('ok')
+        return Response({'is_pair_success': pair_result})
 
     @swagger_auto_schema(operation_description=API_DESCRIPTIONS['swaprequest_mark_complete'])
     @action(methods=['patch'], detail=True)
