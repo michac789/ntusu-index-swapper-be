@@ -1,3 +1,4 @@
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.http import Http404
 from rest_framework import status
@@ -18,7 +19,7 @@ from indexswapper.serializers import (
 from indexswapper.utils import email
 from indexswapper.utils.algo import perform_pairing
 from indexswapper.utils.decorator import get_swap_request_with_id_verify, verify_cooldown
-from indexswapper.utils.description import API_DESCRIPTIONS, swaprequest_qp
+from indexswapper.utils.description import API_DESCRIPTIONS, courseindex_search_qp, swaprequest_qp
 from indexswapper.utils.mixin import (
     CourseIndexQueryParamsMixin,
     SwapRequestQueryParamsMixin,
@@ -51,7 +52,8 @@ class CourseIndexViewSet(CourseIndexQueryParamsMixin,
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['courseindex_get_courses'])
+    @swagger_auto_schema(operation_description=API_DESCRIPTIONS['courseindex_get_courses'],
+                         manual_parameters=[courseindex_search_qp])
     @action(methods=['get'], detail=False)
     def get_courses(self, *args, **kwargs):
         qs = self.filter_queryset(self.get_queryset())
