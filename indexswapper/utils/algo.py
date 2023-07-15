@@ -1,4 +1,5 @@
 from django.utils import timezone as tz
+from indexswapper.utils import email
 from indexswapper.utils.decorator import lock_db_table
 from indexswapper.models import CourseIndex, SwapRequest
 
@@ -20,7 +21,6 @@ def perform_pairing(swap_request_id: int, *args, **kwargs):
     - when a pair has been matched, swap unsuccessful after cooldown,
         and one side reinitiate the search
         (call with this user's swap request id, no need to do for the other side)
-    TODO - make one more status: CANCELLED
 
     Pseudocode:
     - Make this SwapRequest status to SEARCHING (it may be 'WAITING'), reset some other values
@@ -63,7 +63,8 @@ def perform_pairing(swap_request_id: int, *args, **kwargs):
                     course_index = CourseIndex.objects.get(index=index)
                     course_index.pending_count -= 1
                     course_index.save()
-            # TODO - send email to both users when a pair is found!
+            email.send_swap_pair_found(swap_request)
+            email.send_swap_pair_found(instance)
             return True
     swap_request.save()
     return False
