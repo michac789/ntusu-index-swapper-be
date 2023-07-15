@@ -200,3 +200,11 @@ swaprequest_qp = openapi.Parameter(
     'status', openapi.IN_QUERY,
     description="filter status with 'S'(searching) or 'W'(waiting) or 'C'(completed))",
     type=openapi.TYPE_STRING)
+
+courseindex_search_qp = openapi.Parameter(
+    name='search__icontains',
+    in_=openapi.IN_QUERY,
+    type=openapi.TYPE_STRING,
+    description='Get all CourseIndex with code or name that contains this search string',
+    required=False,
+)

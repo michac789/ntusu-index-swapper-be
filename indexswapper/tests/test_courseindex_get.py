@@ -211,7 +211,7 @@ class CourseIndexGetCoursesTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(len(resp_json['results']), 1)
         self.assertEqual(resp_json['results'][0]['code'], 'MH1200')
 
-    def test_success_qp_search(self):
+    def test_success_qp_search_name(self):
         resp = self.client3.get(self.ENDPOINT, {
             'name__icontains': 'calcu',
         })
@@ -220,6 +220,38 @@ class CourseIndexGetCoursesTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json['total_pages'], 1)
         self.assertEqual(len(resp_json['results']), 1)
         self.assertEqual(resp_json['results'][0]['code'], 'MH1100')
+
+    def test_success_qp_search_code(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'code__icontains': 'MH1',
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 3)
+        self.assertEqual(resp_json['total_pages'], 1)
+        self.assertEqual(len(resp_json['results']), 3)
+        self.assertEqual(resp_json['results'][0]['code'], 'MH1100')
+        self.assertEqual(resp_json['results'][1]['code'], 'MH1200')
+        self.assertEqual(resp_json['results'][2]['code'], 'MH1300')
+
+    def test_success_qp_search_custom_1(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'search__icontains': '120',
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 1)
+        self.assertEqual(resp_json['total_pages'], 1)
+        self.assertEqual(len(resp_json['results']), 1)
+        self.assertEqual(resp_json['results'][0]['code'], 'MH1200')
+
+    def test_success_qp_search_custom_2(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'search__icontains': 'foundation',
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 1)
+        self.assertEqual(resp_json['total_pages'], 1)
+        self.assertEqual(len(resp_json['results']), 1)
+        self.assertEqual(resp_json['results'][0]['code'], 'MH1300')
 
 
 class CourseIndexGetIndexesTestCase(IndexSwapperBaseTestCase):
