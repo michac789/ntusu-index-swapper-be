@@ -15,7 +15,7 @@ class SwapRequestEmailTestCase(IndexSwapperBaseTestCase):
     @classmethod
     def setUpTestData(self):
         super().setUpTestData()
-        self.SAMPLE_SWAP_REQUEST: SwapRequest = SwapRequest.objects.get(id=4)
+        self.SAMPLE_SWAP_REQUEST: SwapRequest = SwapRequest.objects.get(id=3)
         self.SAMPLE_SWAP_REQUEST.user.email = self.TEST_EMAIL
         self.SAMPLE_SWAP_REQUEST.user.save()
 
@@ -35,4 +35,12 @@ class SwapRequestEmailTestCase(IndexSwapperBaseTestCase):
         # take note that in views.py, this function is called for your pair
         # e.g., call `send_swap_cancel_pair(instance.pair)``
         resp = email.send_swap_cancel_pair(self.SAMPLE_SWAP_REQUEST)
+        self.assertEqual(resp['ResponseMetadata']['HTTPStatusCode'], 200)
+
+    def test_email_send_swap_completed(self):
+        resp = email.send_swap_completed(self.SAMPLE_SWAP_REQUEST)
+        self.assertEqual(resp['ResponseMetadata']['HTTPStatusCode'], 200)
+
+    def test_email_send_swap_pair_found(self):
+        resp = email.send_swap_pair_found(self.SAMPLE_SWAP_REQUEST)
         self.assertEqual(resp['ResponseMetadata']['HTTPStatusCode'], 200)

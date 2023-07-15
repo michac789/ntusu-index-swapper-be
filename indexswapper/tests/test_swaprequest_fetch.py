@@ -54,7 +54,8 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(list(resp_json_2.keys()), ['error', 'time_left'])
 
     @patch('indexswapper.utils.email.send_swap_search_another')
-    def test_success_pair_found(self, mock_func):
+    @patch('indexswapper.utils.email.send_swap_pair_found')
+    def test_success_pair_found(self, mock_func1, mock_func2):
         SWAPREQUEST_ID = 1
         instance = SwapRequest.objects.get(id=SWAPREQUEST_ID)
         old_pair_id = instance.pair.id
@@ -81,7 +82,9 @@ class SwapRequestSearchAnotherTestCase(IndexSwapperBaseTestCase):
         old_pair = SwapRequest.objects.get(id=old_pair_id)
         self.assertEqual(old_pair.pair.id, SWAPREQUEST_ID)
         self.assertEqual(old_pair.status, SwapRequest.Status.REVOKED)
-        mock_func.assert_called_once()
+        mock_func1.assert_called()
+        self.assertEqual(mock_func1.call_count, 2)
+        mock_func2.assert_called_once()
 
     @patch('indexswapper.utils.email.send_swap_search_another')
     def test_success_pair_not_found(self, mock_func):

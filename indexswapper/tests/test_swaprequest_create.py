@@ -114,7 +114,8 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
     ENDPOINT = '/indexswapper/swaprequest/'
 
     @patch('indexswapper.utils.email.send_swap_request_creation')
-    def test_algo_pair_found_1(self, mock_func):
+    @patch('indexswapper.utils.email.send_swap_pair_found')
+    def test_algo_pair_found_1(self, mock_func1, mock_func2):
         resp = self.client2.post(self.ENDPOINT, {
             'contact_info': 'sample_mail@mail.com',
             'contact_type': 'E',
@@ -135,10 +136,13 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
         self.assertIsNotNone(instance.datetime_added)
         self.assertIsNotNone(instance.datetime_found)
         self.assertEqual(instance.datetime_found, instance.pair.datetime_found)
-        mock_func.assert_called_once()
+        mock_func1.assert_called()
+        self.assertEqual(mock_func1.call_count, 2)
+        mock_func2.assert_called_once()
 
     @patch('indexswapper.utils.email.send_swap_request_creation')
-    def test_algo_pair_found_2(self, mock_func):
+    @patch('indexswapper.utils.email.send_swap_pair_found')
+    def test_algo_pair_found_2(self, mock_func1, mock_func2):
         resp = self.client2.post(self.ENDPOINT, {
             'contact_info': 'sample_mail@mail.com',
             'contact_type': 'E',
@@ -159,7 +163,9 @@ class SwapRequestCreateAlgoTestCase(IndexSwapperBaseTestCase):
         self.assertIsNotNone(instance.datetime_added)
         self.assertIsNotNone(instance.datetime_found)
         self.assertEqual(instance.datetime_found, instance.pair.datetime_found)
-        mock_func.assert_called_once()
+        mock_func1.assert_called()
+        self.assertEqual(mock_func1.call_count, 2)
+        mock_func2.assert_called_once()
 
     @patch('indexswapper.utils.email.send_swap_request_creation')
     def test_algo_pair_not_found_1(self, mock_func):

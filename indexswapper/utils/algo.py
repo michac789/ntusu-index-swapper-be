@@ -1,4 +1,5 @@
 from django.utils import timezone as tz
+from indexswapper.utils import email
 from indexswapper.utils.decorator import lock_db_table
 from indexswapper.models import CourseIndex, SwapRequest
 
@@ -46,7 +47,6 @@ def perform_pairing(swap_request_id: int, *args, **kwargs):
     for instance in instances:
         if instance.current_index.index in swap_request.get_wanted_indexes and\
                 swap_request.current_index.index in instance.get_wanted_indexes:
-            # a pair is found
             swap_request.status = SwapRequest.Status.WAITING
             instance.status = SwapRequest.Status.WAITING
             swap_request.pair = instance
@@ -63,7 +63,8 @@ def perform_pairing(swap_request_id: int, *args, **kwargs):
                     course_index = CourseIndex.objects.get(index=index)
                     course_index.pending_count -= 1
                     course_index.save()
-            # TODO - send email to both users when a pair is found!
+            email.send_swap_pair_found(swap_request)
+            email.send_swap_pair_found(instance)
             return True
     swap_request.save()
     return False

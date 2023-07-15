@@ -72,7 +72,10 @@ class SwapRequest(models.Model):
 
     @property
     def get_wanted_indexes(self):
-        return eval(self.wanted_indexes)
+        try:
+            return eval(self.wanted_indexes)
+        except:
+            return []
 
     class Meta:
         verbose_name_plural = 'Swap Requests'
