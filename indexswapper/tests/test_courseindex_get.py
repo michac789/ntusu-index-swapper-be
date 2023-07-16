@@ -26,7 +26,7 @@ class CourseIndexListTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json['total_pages'], 4)
         self.assertEqual(len(resp_json['results']), 10)
         self.assertEqual(list(resp_json.keys()), [
-                         'count', 'total_pages', 'results'])
+                         'count', 'prev', 'next', 'total_pages', 'results'])
         self.assertEqual(list(resp_json['results'][0].keys()), [
                          'id', 'code', 'name', 'index', 'pending_count'])
 
@@ -184,7 +184,7 @@ class CourseIndexGetCoursesTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json['results'][2]['code'], 'MH1300')
         self.assertEqual(resp_json['results'][0]['name'], 'CALCULUS I')
         self.assertEqual(list(resp_json.keys()),
-                         ['count', 'total_pages', 'results'])
+                         ['count', 'prev', 'next', 'total_pages', 'results'])
         self.assertEqual(list(resp_json['results'][0].keys()),
                          ['code', 'name'])
 
@@ -198,6 +198,26 @@ class CourseIndexGetCoursesTestCase(IndexSwapperBaseTestCase):
         self.assertEqual(resp_json['total_pages'], 2)
         self.assertEqual(len(resp_json['results']), 1)
         self.assertEqual(resp_json['results'][0]['code'], 'MH1300')
+
+    def test_success_pagination_next_prev(self):
+        resp = self.client3.get(self.ENDPOINT, {
+            'page_size': 2,
+        })
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['count'], 3)
+        self.assertEqual(resp_json['total_pages'], 2)
+        self.assertEqual(len(resp_json['results']), 2)
+        self.assertEqual(
+            resp_json['next'], 'http://testserver/indexswapper/courseindex/get_courses/?page=2&page_size=2')
+        self.assertIsNone(resp_json['prev'])
+        resp2 = self.client3.get(resp_json['next'])
+        resp_json2 = loads(resp2.content.decode('utf-8'))
+        self.assertEqual(resp_json2['count'], 3)
+        self.assertEqual(resp_json2['total_pages'], 2)
+        self.assertEqual(len(resp_json2['results']), 1)
+        self.assertIsNone(resp_json2['next'])
+        self.assertEqual(
+            resp_json2['prev'], 'http://testserver/indexswapper/courseindex/get_courses/?page_size=2')
 
     def test_success_qp_ordering(self):
         resp = self.client3.get(self.ENDPOINT, {

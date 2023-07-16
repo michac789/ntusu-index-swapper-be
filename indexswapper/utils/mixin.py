@@ -11,6 +11,8 @@ class PaginationConfig(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response({
             'count': self.page.paginator.count,
+            'prev': self.get_previous_link(),
+            'next': self.get_next_link(),
             'total_pages': self.page.paginator.num_pages,
             'results': data,
         })
