@@ -9,6 +9,9 @@ from indexswapper.utils.scraper import populate_modules
 from indexswapper.utils.validation import ConflictValidationError
 
 
+MAX_SWAPREQUESTS_PER_USER = 8
+
+
 class PopulateDatabaseSerializer(serializers.Serializer):
     admin_key = serializers.CharField(max_length=100)
     web_link = serializers.CharField(max_length=500)
@@ -89,6 +92,10 @@ class SwapRequestCreateSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def validate(self, data):
+        user_sr_count = SwapRequest.objects.filter(user=self.context['request'].user).count()
+        if user_sr_count >= MAX_SWAPREQUESTS_PER_USER:
+            raise serializers.ValidationError(
+                f'Bad request, user has reached maximum number of swap requests ({MAX_SWAPREQUESTS_PER_USER})')
         instance = get_object_or_404(
             CourseIndex,
             index=data['current_index_num'])
