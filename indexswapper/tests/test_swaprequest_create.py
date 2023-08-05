@@ -68,6 +68,28 @@ class SwapRequestCreateTestCase(IndexSwapperBaseTestCase):
             'wanted_indexes': ['70181'],
         })
         self.assertEqual(resp.status_code, 400)
+    
+    def test_fail_too_many_swap_requests(self):
+        # user has created 8 swap requests
+        for i in range(8):
+            resp = self.client1.post(self.ENDPOINT, {
+                'contact_info': 'sample_mail@mail.com',
+                'contact_type': 'E',
+                'current_index_num': f'7018{i + 1}',
+                'wanted_indexes': [f'7018{i + 2}'],
+            })
+            self.assertEqual(resp.status_code, 201)
+        # cannot create again (max 8 for now)
+        resp = self.client1.post(self.ENDPOINT, {
+            'contact_info': 'sample_mail@mail.com',
+            'contact_type': 'E',
+            'current_index_num': f'70195',
+            'wanted_indexes': [f'70196'],
+        })
+        self.assertEqual(resp.status_code, 400)
+        resp_json = loads(resp.content.decode('utf-8'))
+        self.assertEqual(resp_json['non_field_errors'],
+                         ['Bad request, user has reached maximum number of swap requests (8)'])
 
     def test_fail_conflict(self):
         # user has created a swap request with the same index, and the status is S or W
