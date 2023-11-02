@@ -1,3 +1,6 @@
 from django.contrib import admin
+from modsoptimizer.models import CourseCode, CourseIndex
 
-# Register your models here.
+
+admin.site.register(CourseCode)
+admin.site.register(CourseIndex)
