@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'indexswapper',
+    'modsoptimizer',
     'sso',
 ]
 
