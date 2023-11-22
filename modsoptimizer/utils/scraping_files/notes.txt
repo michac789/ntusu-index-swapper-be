@@ -1,0 +1,4 @@
+Please write here the latest date of the website used for scraping.
+Just to make sure that the data is up to date.
+
+Exam schedule: 02/11/2023
