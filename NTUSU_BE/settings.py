@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 # Extra imports
 import boto3
 import datetime
+import logging
 import os
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -207,3 +208,14 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
+
+# logging settings
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("ntusu_backend_logs.log"),
+    ]
+)
+logger = logging.getLogger(__name__)

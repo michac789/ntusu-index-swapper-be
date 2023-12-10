@@ -12,6 +12,7 @@ from datetime import datetime as dt
 import os
 from typing import Dict, List
 from modsoptimizer.models import CourseCode
+from NTUSU_BE.settings import logger
 
 
 def get_soup_from_html_file(file_path: str) -> BeautifulSoup:
@@ -66,19 +67,21 @@ def process_data(raw_data: List[Dict[str, str]]) -> List[Dict[str, str]]:
 
 
 def save_exam_schedule(data: List[Dict]) -> None:
-    # assume that all course codes are already in database
     for exam_data in data:
-        course = CourseCode.objects.get(code=exam_data['course_code'])
-        course.exam_schedule = exam_data['exam_schedule_str']
-        course.save()
+        try:
+            course = CourseCode.objects.get(code=exam_data['course_code'])
+            course.exam_schedule = exam_data['exam_schedule_str']
+            course.save()
+        except CourseCode.DoesNotExist:
+            logger.warning(f'Course code {exam_data["course_code"]} does not exist')
 
 
 def perform_exam_schedule_scraping():
     try:
-        FILE_PATH = os.path.join('modsoptimizer', 'utils', 'scraping_files', 'exam_schedule.html')
+        FILE_PATH = os.path.join('modsoptimizer', 'utils', 'scraping_files', 'examtimetable.html')
         soup = get_soup_from_html_file(FILE_PATH)
         raw_data = get_raw_data(soup)
         data = process_data(raw_data)
         save_exam_schedule(data)
     except Exception as e:
-        print(f'Error: {e}')
+        logger.error(f'Exam Schedule Scraper Error: {e}')

@@ -3,6 +3,7 @@ from urllib import request
 from typing import Dict, List, Tuple
 import re
 from modsoptimizer.models import CourseCode, CourseIndex
+from NTUSU_BE.settings import logger
 
 
 def get_soup_from_url(acadyear: str, acadsem: str) -> BeautifulSoup:
@@ -188,4 +189,4 @@ def perform_course_scraping():
         processed_data = process_data(raw_data)
         save_course_data(processed_data)
     except Exception as e:
-        print(f'Error: {e}')
+        logger.error(f'Course Schedule Scraper Error: {e}')
