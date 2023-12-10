@@ -24,7 +24,7 @@ class TestCourseScraper(APITestCase):
             schedule_list[arg - 1] = 'X'
         return ''.join(schedule_list)
     
-    def test_soup_1(self):
+    def test_course_scraper_1(self):
         raw_data = get_raw_data(self.soup, 0, 0)
         self.assertEqual(raw_data,
         [
@@ -88,7 +88,7 @@ class TestCourseScraper(APITestCase):
             }
         ])
 
-    def test_soup_2(self):
+    def test_course_scraper_2(self):
         raw_data = get_raw_data(self.soup, 4, 4)
         self.assertEqual(raw_data,
         [
@@ -217,7 +217,7 @@ class TestCourseScraper(APITestCase):
             }
         ])
          
-    def test_soup_3(self):
+    def test_course_scraper_3(self):
         raw_data = get_raw_data(self.soup, 17, 17)
         self.assertEqual(raw_data,
         [
@@ -297,7 +297,7 @@ class TestCourseScraper(APITestCase):
             },
         ])
 
-    def test_soup_4(self):
+    def test_course_scraper_4(self):
         raw_data = get_raw_data(self.soup, 47, 47)
         self.assertEqual(raw_data,
         [
@@ -361,7 +361,7 @@ class TestCourseScraper(APITestCase):
             }
         ])
 
-    def test_soup_5(self):
+    def test_course_scraper_5(self):
         raw_data = get_raw_data(self.soup, 48, 48)
         self.assertEqual(raw_data,
         [

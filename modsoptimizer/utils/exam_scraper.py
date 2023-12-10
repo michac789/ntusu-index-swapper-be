@@ -45,23 +45,39 @@ def process_data(raw_data: List[Dict[str, str]]) -> List[Dict[str, str]]:
         # extract date in DDMMYY format for first 6 characters
         date = exam['date']
         date_object = dt.strptime(date, "%d %B %Y")
-        date_str = date_object.strftime("%d%m%y")
+        date_str = date_object.strftime("%Y-%m-%d")
 
         # extract exam time, 'X' for occupied, 'O' for unoccupied
+        # assume that exam can only start at '00' minute or '30' minute
         exam_time_list = ['O'] * 32 # 8am to 12am, 16 hours in total, every 30 mins interval
         hour, am_pm = exam['time'].split(' ')
-        start_index = (int(hour.split('.')[0]) - 8) * 2 + (1 if hour.split('.')[1] == '30' else 0)\
-            if am_pm == 'am' else \
-            (int(hour.split('.')[0])) * 2 + (1 if hour.split('.')[1] == '30' else 0) + 8
+        hour_start, min_start = map(int, hour.split('.'))
         duration_list = exam['duration'].split(' ')
-        end_index = start_index + int(duration_list[0]) * 2 + \
-            (1 if len(duration_list) > 2 and duration_list[2] == '30' else 0)
+        duration_hour = int(duration_list[0])
+        duration_min = int(duration_list[2]) if len(duration_list) > 2 and duration_list[2] != '' else 0
+        
+        start_index = (hour_start - 8) * 2 + (1 if min_start == '30' else 0) \
+            if am_pm == 'am' else \
+            hour_start * 2 + (1 if min_start == '30' else 0) + 8
+        end_index = start_index + duration_hour * 2 + \
+            (2 if duration_min > 30 else 1 if duration_min != 0 else 0)
         exam_time_list[start_index:end_index] = ['X'] * (end_index - start_index)
         exam_time_str = ''.join(exam_time_list)
+        
+        # assume duration can only be x hour, 0/15/30/45 min, where x is positive integer
+        # note: currently per 10/12/2023 for AY2324 Sem 2, only found 0/30 min duration,
+        # but previously on AY2324 Sem 1, found with 15/45 min duration, please check again
+        hour_start = hour_start + 12 if am_pm == 'pm' else hour_start
+        min_end = min_start + duration_min
+        hour_end = hour_start + duration_hour
+        if min_end >= 60:
+            hour_end += 1
+            min_end -= 60
+        time_str = f'{hour_start:02d}:{min_start:02d}-{hour_end:02d}:{min_end:02d}'
 
         data.append({
             'course_code': exam['course_code'],
-            'exam_schedule_str': date_str + exam_time_str,
+            'exam_schedule_str': date_str + time_str + exam_time_str,
         })
     return data
 

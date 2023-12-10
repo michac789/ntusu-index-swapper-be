@@ -19,28 +19,44 @@ def validate_weekly_schedule(value):
 
 
 def validate_exam_schedule(value):
-    if len(value) != 38:
+    if len(value) != 53:
         raise ValidationError(
             _(f'`{value}` must be 38 characters long'),
             params={'value': value},
             code='invalid_length'
         )
-    day, month, year, time = value[:2], value[2:4], value[4:6], value[6:]
+    date, time, timecode = value[:10], value[10:21], value[21:]
+    year, month, date = date.split('-')
     try:
-        day, month, year = int(day), int(month), int(year)
-        if not (1 <= day <= 31 and 1 <= month <= 12 and 0 <= year <= 99):
+        year, month, date = int(year), int(month), int(date)
+        if not (1 <= date <= 31 and 1 <= month <= 12 and year[:2] == '20' and 0 <= year[2:] <= 99):
             raise ValidationError(
-                _(f'`{value[:6]}` (first 6 chars) must be valid DDMMYY'),
+                _(f'`{value[:10]}` (first 10 chars) must be valid YYYY-MM-DD format'),
                 params={'value': value},
                 code='invalid_format'
             )
     except ValueError:
         raise ValidationError(
-            _(f'`{value[:6]}` (first 6 chars) must be in the format DDMMYY'),
+            _(f'`{value[:10]}` (first 10 chars) must be valid YYYY-MM-DD format'),
             params={'value': value},
             code='invalid_format'
         )
-    if not all(char in ('X', '0') for char in time):
+    hour_start, min_start, hour_end, min_end = time[:2], time[3:5], time[6:8], time[9:]
+    try:
+        hour_start, min_start, hour_end, min_end = int(hour_start), int(min_start), int(hour_end), int(min_end)
+        if not (0 <= hour_start <= 23 and 0 <= min_start <= 59 and 0 <= hour_end <= 23 and 0 <= min_end <= 59):
+            raise ValidationError(
+                _(f'`{value[10:21]}` (next 11 chars) must be valid HH:MM-HH:MM format'),
+                params={'value': value},
+                code='invalid_format'
+            )
+    except ValueError:
+        raise ValidationError(
+            _(f'`{value[10:21]}` (next 11 chars) must be valid HH:MM-HH:MM format'),
+            params={'value': value},
+            code='invalid_format'
+        )
+    if not all(char in ('X', '0') for char in timecode):
         raise ValidationError(
             _(f'`{value}` (last 32 chars) must only contain X and O'),
             params={'value': value},

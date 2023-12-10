@@ -13,7 +13,7 @@ class CourseCode(models.Model):
     academic_units = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)])
     datetime_added = models.DateTimeField(auto_now_add=True)
-    exam_schedule = models.CharField(max_length=38, blank=True, validators=[validate_exam_schedule])
+    exam_schedule = models.CharField(max_length=53, blank=True, validators=[validate_exam_schedule])
     common_schedule = models.CharField(max_length=192, validators=[validate_weekly_schedule])
     '''
         Let (S) denotes a 32 character string, each character represent 30 minutes interval,
@@ -22,8 +22,8 @@ class CourseCode(models.Model):
         For example, 'OOOXXXXOOOOOOOOOOOOOOOOOOOOOOOOO' means that 9.30am to 11.30am is occupied.
 
         `exam_schedule` is stored in the following format:
-        DDMMYY(S)
-        Example: 071223OOOOOOOOOOXXXXOOOOOOOOOOOOOOOOOO
+        YYYY-MM-DDHH:MM-HH:MM(S)
+        Example: 2023-11-0713:00-15:00OOOOOOOOOOXXXXOOOOOOOOOOOOOOOOOO
         Interpretation: Exam is on 7 Nov 2023, 1pm to 3pm.
 
         `common_schedule` is stored in the following format:
@@ -31,6 +31,15 @@ class CourseCode(models.Model):
         Each (S) represents a day of the week, from Monday to Saturday.
         Common schedule are the occupied time slots that are common in all indexes of the course.
     '''
+    
+    @property
+    def get_exam_schedule(self):
+        return {
+            'date': self.exam_schedule[:10],
+            'time': self.exam_schedule[10:21],
+            'timecode': self.exam_schedule[21:],
+        }
+
     class Meta:
         verbose_name_plural = 'Course Codes'
 
