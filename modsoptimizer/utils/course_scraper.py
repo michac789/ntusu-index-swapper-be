@@ -83,6 +83,7 @@ def get_raw_data(soup: BeautifulSoup, start: int=0, end: int=99999):
     courses_soup = get_courses_soup()
     raw_data = []
     for header_table, schedule_table in courses_soup:
+        if str(schedule_table) == '<br/>': continue # last element is empty
         header_info = extract_header_info(header_table)
         schedule_info = extract_schedule_info(schedule_table)
         raw_data.append((header_info, schedule_info))
@@ -112,7 +113,7 @@ def process_data(raw_data: List[Tuple[dict, List]]) -> List[Dict]:
                 day, time = row_info['day'], row_info['time']
                 days_list = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
                 if day not in days_list:
-                    raise ValueError(f'Invalid day: `{day}` (should be one of {days_list})')
+                    continue # edge case: there is an online course with no scheduled day
                 day_index = 32 * days_list.index(day)
                 start_time, end_time = time.split('-')
                 start_index = (int(start_time[0:2]) - 8) * 2 + \
@@ -178,14 +179,11 @@ def save_course_data(data: List[Dict]) -> None:
 
 
 def perform_course_scraping():
-    # constants
     ACADEMIC_YEAR = '2023'
     ACADEMIC_SEMESTER = '2'
-    START_INDEX = 3
-    END_INDEX = 3
     try:
         soup = get_soup_from_url(ACADEMIC_YEAR, ACADEMIC_SEMESTER)
-        raw_data = get_raw_data(soup, START_INDEX, END_INDEX)
+        raw_data = get_raw_data(soup)
         processed_data = process_data(raw_data)
         save_course_data(processed_data)
     except Exception as e:
