@@ -75,7 +75,7 @@ def save_exam_schedule(data: List[Dict]) -> None:
 
 def perform_exam_schedule_scraping():
     try:
-        FILE_PATH = os.path.join('modsoptimizer', 'utils', 'scraping_files', 'examtimetable.html')
+        FILE_PATH = os.path.join('modsoptimizer', 'utils', 'scraping_files', 'exam_schedule.html')
         soup = get_soup_from_html_file(FILE_PATH)
         raw_data = get_raw_data(soup)
         data = process_data(raw_data)

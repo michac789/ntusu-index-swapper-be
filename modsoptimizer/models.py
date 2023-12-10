@@ -8,12 +8,12 @@ from modsoptimizer.utils.validation import (
 
 
 class CourseCode(models.Model):
-    code = models.CharField(max_length=6)
+    code = models.CharField(max_length=6, unique=True)
     name = models.CharField(max_length=100)
     academic_units = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)])
     datetime_added = models.DateTimeField(auto_now_add=True)
-    exam_schedule = models.CharField(max_length=38, validators=[validate_exam_schedule])
+    exam_schedule = models.CharField(max_length=38, blank=True, validators=[validate_exam_schedule])
     common_schedule = models.CharField(max_length=192, validators=[validate_weekly_schedule])
     '''
         Let (S) denotes a 32 character string, each character represent 30 minutes interval,
@@ -45,6 +45,20 @@ class CourseIndex(models.Model):
     index = models.CharField(max_length=5, unique=True, validators=[validate_index])
     information = models.TextField() # TODO - add validation
     schedule = models.CharField(max_length=192, validators=[validate_weekly_schedule])
+
+    @property
+    def get_information(self):
+        def serialize(msg):
+            single_infos = msg.split('^')
+            return {
+                'type': single_infos[0],
+                'group': single_infos[1],
+                'day': single_infos[2],
+                'time': single_infos[3],
+                'venue': single_infos[4],
+                'remark': single_infos[5],
+            }
+        return [serialize(info_group) for info_group in self.information.split(';')]
 
     class Meta:
         verbose_name_plural = 'Course Indexes'

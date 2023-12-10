@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup, element
 from urllib import request
 from typing import Dict, List, Tuple
 import re
+from modsoptimizer.models import CourseCode, CourseIndex
 
 
 def get_soup_from_url(acadyear: str, acadsem: str) -> BeautifulSoup:
@@ -15,6 +16,7 @@ def get_soup_from_url(acadyear: str, acadsem: str) -> BeautifulSoup:
 def get_raw_data(soup: BeautifulSoup, start: int=0, end: int=99999):
     # Return a list of length (end-start+1) containing 2-sized tuples,
     # where the tuple contain the header table and the schedule table
+    # It contains the data for the courses from index `start` to `end` inclusive
     def get_courses_soup() -> List[Tuple[element.Tag, element.Tag]]:
         hr_tags = soup.find_all('hr')
         courses_soup = []
@@ -118,12 +120,26 @@ def process_data(raw_data: List[Tuple[dict, List]]) -> List[Dict]:
                     (1 if end_time[2:] == '20' else 0)
                 schedule_list[day_index + start_index: day_index + end_index] = ['X'] * (end_index - start_index)
             index_info['schedule'] = schedule_list
+            
+            # get information string for each index
+            information_list = []
+            for row_info in index_data['info']:
+                information = '^'.join([
+                    row_info['type'],
+                    row_info['group'],
+                    row_info['day'],
+                    row_info['time'],
+                    row_info['venue'],
+                    row_info['remark']
+                ])
+                information_list.append(information)
+            index_info['information'] = ';'.join(information_list)
+            
             indexes_data.append(index_info)
         clean_data['indexes'] = indexes_data
         
         # get common schedule (that time slot is occupied in all indexes)
         def get_common_schedule_str(*args):
-            for arg in args: print(arg[32:42])
             common_schedule_list = []
             for values in zip(*args):
                 if all(val == 'X' for val in values):
@@ -144,15 +160,32 @@ def process_data(raw_data: List[Tuple[dict, List]]) -> List[Dict]:
 
 
 def save_course_data(data: List[Dict]) -> None:
-    pass # TODO
+    for course in data:
+        course_code = CourseCode.objects.create(
+            code=course['course_code'],
+            name=course['course_name'],
+            academic_units=course['academic_units'],
+            common_schedule=course['common_schedule'],
+        )
+        for index in course['indexes']:
+            CourseIndex.objects.create(
+                course=course_code,
+                index=index['index'],
+                information=index['information'],
+                schedule=index['schedule'],
+            )
 
 
 def perform_course_scraping():
+    # constants
+    ACADEMIC_YEAR = '2023'
+    ACADEMIC_SEMESTER = '2'
+    START_INDEX = 3
+    END_INDEX = 3
     try:
-        soup = get_soup_from_url('2023', '2')
-        raw_data = get_raw_data(soup, 42, 42)
+        soup = get_soup_from_url(ACADEMIC_YEAR, ACADEMIC_SEMESTER)
+        raw_data = get_raw_data(soup, START_INDEX, END_INDEX)
         processed_data = process_data(raw_data)
-        # print(processed_data)
         save_course_data(processed_data)
     except Exception as e:
         print(f'Error: {e}')
