@@ -34,6 +34,8 @@ class CourseCode(models.Model):
     
     @property
     def get_exam_schedule(self):
+        if self.exam_schedule == '':
+            return None
         return {
             'date': self.exam_schedule[:10],
             'time': self.exam_schedule[10:21],
