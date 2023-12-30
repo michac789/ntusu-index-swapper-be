@@ -32,7 +32,7 @@ def get_exam_data(_):
 
 
 @api_view(['GET'])
-# @permission_classes([IsSuperUser])
+@permission_classes([IsSuperUser])
 def get_info_data(_):
     perform_info_update()
     return Response('Info Update Completed')
