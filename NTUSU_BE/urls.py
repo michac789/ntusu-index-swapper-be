@@ -35,5 +35,6 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger')),
 
     path('indexswapper/', include('indexswapper.urls')),
+    path('modsoptimizer/', include('modsoptimizer.urls')),
     path('sso/', include('sso.urls')),
 ]
