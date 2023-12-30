@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from modsoptimizer.utils.validation import (
     validate_index,
     validate_exam_schedule,
+    validate_information,
     validate_weekly_schedule,
 )
 
@@ -32,7 +33,7 @@ class CourseCode(models.Model):
         Common schedule are the occupied time slots that are common in all indexes of the course.
     '''
     # information that is common across all indexes of this course
-    common_information = models.TextField(null=True, blank=True)
+    common_information = models.TextField(null=True, blank=True, validators=[validate_information])
     
     def serialize_info(self, info):
         single_infos = info.split('^')
@@ -71,11 +72,11 @@ class CourseIndex(models.Model):
         CourseCode, on_delete=models.CASCADE,
         related_name='indexes')
     index = models.CharField(max_length=5, unique=True, validators=[validate_index])
-    information = models.TextField() # TODO - add validation
+    information = models.TextField(validators=[validate_information])
     schedule = models.CharField(max_length=192, validators=[validate_weekly_schedule])
     
     # only contains information that is not common across all indexes of the course that the index belongs to
-    filtered_information = models.TextField(null=True, blank=True)
+    filtered_information = models.TextField(null=True, blank=True, validators=[validate_information])
     
     def serialize_info(self, info):
         single_infos = info.split('^')
