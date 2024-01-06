@@ -48,7 +48,8 @@ class CourseCode(models.Model):
 
     @property
     def get_common_information(self):
-        return [self.serialize_info(info_group) for info_group in self.common_information.split(';')]
+        return [self.serialize_info(info_group) for info_group in self.common_information.split(';')] if \
+            self.common_information else []
     
     @property
     def get_exam_schedule(self):
@@ -91,11 +92,13 @@ class CourseIndex(models.Model):
 
     @property
     def get_information(self):
-        return [self.serialize_info(info_group) for info_group in self.information.split(';')]
+        return [self.serialize_info(info_group) for info_group in self.information.split(';')] if \
+            self.information else []
     
     @property
     def get_filtered_information(self):
-        return [self.serialize_info(info_group) for info_group in self.filtered_information.split(';')]
+        return [self.serialize_info(info_group) for info_group in self.filtered_information.split(';')] if \
+            self.filtered_information else []
 
     class Meta:
         verbose_name_plural = 'Course Indexes'
